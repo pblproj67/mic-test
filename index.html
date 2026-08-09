@@ -2360,7 +2360,8 @@ function stopReading() {
 
 
 /* =========================================================
-   REF-49 — READ
+   REF-49 — READ / STOP READ
+   Samsung Chrome safer version
 ========================================================= */
 
 readBtn.addEventListener(
@@ -2368,33 +2369,34 @@ readBtn.addEventListener(
 
   function() {
 
+    /* -------------------------------
+       STOP
+    -------------------------------- */
 
     if (reading) {
 
-
       stopReading();
 
-
       statusEl.textContent =
-        heardEl.value.trim()
-          ? "DICTATION READY"
-          : "PRESS BLUE TO LISTEN";
+        "DICTATION READY";
 
+      resultEl.textContent =
+        "";
 
       return;
-
     }
 
 
-    if (listening) {
+    /* -------------------------------
+       DON'T READ WHILE LISTENING
+    -------------------------------- */
 
+    if (listening) {
 
       resultEl.textContent =
         "Stop listening before reading.";
 
-
       return;
-
     }
 
 
@@ -2404,131 +2406,202 @@ readBtn.addEventListener(
 
     if (!text) {
 
-
       resultEl.textContent =
         "Nothing to read.";
 
-
       return;
-
     }
 
 
-    if (
-      !(
-        "speechSynthesis"
-        in window
-      )
-    ) {
-
+    if (!("speechSynthesis" in window)) {
 
       resultEl.textContent =
         "Text-to-speech is not supported.";
 
-
       return;
-
     }
 
+
+    /*
+      Cancel any old/stuck Samsung
+      speech-synthesis session.
+    */
 
     window.speechSynthesis.cancel();
 
 
-    const utterance =
-      new SpeechSynthesisUtterance(
-        text
-      );
+    /*
+      IMPORTANT:
 
+      Change the button to STOP immediately,
+      before Android starts speaking.
+    */
 
-    utterance.lang =
-      languageEl.value;
-
-
-    const selectedVoice =
-      getSelectedVoice();
-
-
-    if (selectedVoice) {
-
-
-      utterance.voice =
-        selectedVoice;
-
-    }
-
-
-    utterance.rate =
-      0.95;
-
-
-    utterance.pitch =
-      1;
-
-
-    utterance.volume =
-      1;
-
-
-    reading =
-      true;
-
+    reading = true;
 
     updateReadButton();
-
 
     statusEl.textContent =
       "READING...";
 
+    resultEl.textContent =
+      "";
 
-    utterance.onend =
+
+    /*
+      Give Samsung speech engine a short
+      moment after cancel().
+    */
+
+    setTimeout(
       function() {
 
-
-        reading =
-          false;
-
-
-        updateReadButton();
+        if (!reading) {
+          return;
+        }
 
 
-        statusEl.textContent =
-          "DICTATION READY";
-
-    };
-
-
-    utterance.onerror =
-      function(event) {
+        const utterance =
+          new SpeechSynthesisUtterance(
+            text
+          );
 
 
-        reading =
-          false;
+        utterance.lang =
+          languageEl.value;
 
 
-        updateReadButton();
+        const selectedVoice =
+          getSelectedVoice();
 
 
-        if (
-          event.error !== "canceled"
-        ) {
+        if (selectedVoice) {
+
+          utterance.voice =
+            selectedVoice;
+        }
 
 
-          resultEl.textContent =
-            "READ ERROR: " +
-            event.error;
+        utterance.rate =
+          0.92;
+
+        utterance.pitch =
+          1.0;
+
+        utterance.volume =
+          1.0;
+
+
+        /* -----------------------------
+           SPEECH ACTUALLY STARTED
+        ----------------------------- */
+
+        utterance.onstart =
+          function() {
+
+            if (!reading) {
+              return;
+            }
+
+            statusEl.textContent =
+              "READING...";
+          };
+
+
+        /* -----------------------------
+           SPEECH FINISHED
+        ----------------------------- */
+
+        utterance.onend =
+          function() {
+
+            reading =
+              false;
+
+            updateReadButton();
+
+            statusEl.textContent =
+              "DICTATION READY";
+
+            resultEl.textContent =
+              "";
+          };
+
+
+        /* -----------------------------
+           SPEECH ERROR
+        ----------------------------- */
+
+        utterance.onerror =
+          function(event) {
+
+            /*
+              User pressing STOP can
+              generate canceled/interrupted.
+            */
+
+            if (
+              event.error === "canceled" ||
+              event.error === "interrupted"
+            ) {
+
+              reading =
+                false;
+
+              updateReadButton();
+
+              statusEl.textContent =
+                "DICTATION READY";
+
+              return;
+            }
+
+
+            reading =
+              false;
+
+            updateReadButton();
+
+            statusEl.textContent =
+              "READ FAILED";
+
+
+            resultEl.textContent =
+              "READ ERROR: " +
+              event.error;
+          };
+
+
+        try {
+
+          window.speechSynthesis.speak(
+            utterance
+          );
 
         }
 
-    };
+        catch (error) {
 
+          reading =
+            false;
 
-    window.speechSynthesis.speak(
-      utterance
+          updateReadButton();
+
+          statusEl.textContent =
+            "READ FAILED";
+
+          resultEl.textContent =
+            "READ ERROR: " +
+            error.message;
+        }
+
+      },
+
+      150
     );
 
   }
 );
-
 
 /* =========================================================
    REF-50 — SAVE BUTTON
