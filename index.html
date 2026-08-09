@@ -62,9 +62,57 @@ input {
 }
 
 
-/* ================================
-   LARGE MAIN BUTTONS
-================================ */
+/* ==========================================
+   MIC MODE
+========================================== */
+
+.micModeBox {
+  margin: 18px 0 10px;
+}
+
+.micModeTitle {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #bbb;
+}
+
+.micModeToggle {
+  display: flex;
+  width: 100%;
+  background: #151515;
+  border: 1px solid #444;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.micModeButton {
+  flex: 1;
+  height: 52px;
+  border: none;
+  background: #151515;
+  color: #aaa;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.micModeButton.active {
+  background: #0866ff;
+  color: #fff;
+}
+
+#farStatus {
+  margin-top: 7px;
+  min-height: 18px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+
+/* ==========================================
+   MAIN BUTTONS
+========================================== */
 
 .mainButton {
   display: flex;
@@ -86,12 +134,11 @@ input {
   font-weight: 700;
 
   cursor: pointer;
-
   touch-action: manipulation;
 }
 
 
-/* BLUE READY STATE */
+/* BLUE READY */
 
 #micBtn,
 #readBtn {
@@ -99,15 +146,12 @@ input {
 }
 
 
-/* RED ACTIVE STATE */
+/* RED ACTIVE */
 
 #micBtn.listening,
 #readBtn.reading {
   background: #d71920;
 }
-
-
-/* ICON */
 
 .buttonIcon {
   font-size: 28px;
@@ -154,7 +198,6 @@ input {
 
 .smallButton {
   flex: 1;
-
   min-height: 52px;
 
   border: 1px solid #444;
@@ -177,9 +220,6 @@ input {
 #clearBtn {
   background: #333;
 }
-
-
-/* RESULT */
 
 #result {
   margin: 15px 0 30px;
@@ -307,9 +347,7 @@ input {
 
 </select>
 
-
 <br><br>
-
 
 <label>Google Drive Folder URL</label>
 
@@ -320,6 +358,41 @@ input {
 
 <div class="small">
 Paste Google Drive folder URL or folder ID.
+</div>
+
+</div>
+
+
+<!-- MIC MODE -->
+
+<div class="micModeBox">
+
+<div class="micModeTitle">
+MICROPHONE MODE
+</div>
+
+<div class="micModeToggle">
+
+<button
+  id="normalModeBtn"
+  class="micModeButton active"
+  type="button"
+>
+🎙 NORMAL
+</button>
+
+<button
+  id="farModeBtn"
+  class="micModeButton"
+  type="button"
+>
+📡 FAR MIC
+</button>
+
+</div>
+
+<div id="farStatus">
+Normal microphone mode
 </div>
 
 </div>
@@ -360,7 +433,7 @@ PRESS BLUE TO LISTEN
 ></textarea>
 
 
-<!-- READ BUTTON -->
+<!-- READ -->
 
 <button
   id="readBtn"
@@ -382,7 +455,7 @@ READ
 </button>
 
 
-<!-- CLEAR + SAVE -->
+<!-- CLEAR / SAVE -->
 
 <div class="smallButtons">
 
@@ -393,7 +466,6 @@ READ
 >
 CLEAR
 </button>
-
 
 <button
   id="saveBtn"
@@ -444,6 +516,16 @@ const readIcon =
 
 const readText =
   document.getElementById("readText");
+
+
+const normalModeBtn =
+  document.getElementById("normalModeBtn");
+
+const farModeBtn =
+  document.getElementById("farModeBtn");
+
+const farStatus =
+  document.getElementById("farStatus");
 
 
 const statusEl =
@@ -500,6 +582,10 @@ let saving = false;
 
 let reading = false;
 
+let micMode = "normal";
+
+let farMicStream = null;
+
 
 let finalText = "";
 
@@ -534,7 +620,239 @@ updateDestination();
 
 
 /*************************************************
- NORMALIZE TEXT
+ NORMAL / FAR MIC
+*************************************************/
+
+normalModeBtn.addEventListener(
+  "click",
+  async function() {
+
+    if (listening) {
+      resultEl.textContent =
+        "Stop listening before changing microphone mode.";
+      return;
+    }
+
+    micMode = "normal";
+
+    stopFarMicStream();
+
+    normalModeBtn.classList.add("active");
+    farModeBtn.classList.remove("active");
+
+    farStatus.textContent =
+      "Normal microphone mode";
+
+  }
+);
+
+
+farModeBtn.addEventListener(
+  "click",
+  async function() {
+
+    if (listening) {
+      resultEl.textContent =
+        "Stop listening before changing microphone mode.";
+      return;
+    }
+
+    micMode = "far";
+
+    normalModeBtn.classList.remove("active");
+    farModeBtn.classList.add("active");
+
+    farStatus.textContent =
+      "Preparing far microphone...";
+
+    await prepareFarMic();
+
+  }
+);
+
+
+/*************************************************
+ PREPARE FAR MIC
+*************************************************/
+
+async function prepareFarMic() {
+
+  /*
+    IMPORTANT:
+
+    Chrome SpeechRecognition does not let us
+    directly feed this audio stream into the
+    recognizer.
+
+    These constraints request stronger
+    microphone processing from the browser /
+    operating system where supported.
+  */
+
+  if (
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ) {
+
+    farStatus.textContent =
+      "Far microphone processing not supported on this device.";
+
+    return false;
+
+  }
+
+
+  stopFarMicStream();
+
+
+  try {
+
+    farMicStream =
+      await navigator.mediaDevices.getUserMedia({
+
+        audio: {
+
+          autoGainControl: true,
+
+          noiseSuppression: true,
+
+          echoCancellation: true
+
+        }
+
+      });
+
+
+    const tracks =
+      farMicStream.getAudioTracks();
+
+
+    if (tracks.length > 0) {
+
+      const track =
+        tracks[0];
+
+
+      const settings =
+        track.getSettings
+          ? track.getSettings()
+          : {};
+
+
+      let enabled = [];
+
+
+      if (
+        settings.autoGainControl === true
+      ) {
+
+        enabled.push("Auto Gain");
+
+      }
+
+
+      if (
+        settings.noiseSuppression === true
+      ) {
+
+        enabled.push("Noise Reduction");
+
+      }
+
+
+      if (
+        settings.echoCancellation === true
+      ) {
+
+        enabled.push("Echo Control");
+
+      }
+
+
+      if (
+        enabled.length
+      ) {
+
+        farStatus.textContent =
+          "📡 FAR MIC ACTIVE — " +
+          enabled.join(" + ");
+
+      }
+
+      else {
+
+        farStatus.textContent =
+          "📡 FAR MIC ACTIVE";
+
+      }
+
+    }
+
+    else {
+
+      farStatus.textContent =
+        "📡 FAR MIC ACTIVE";
+
+    }
+
+
+    return true;
+
+  }
+
+
+  catch(error) {
+
+    farMicStream =
+      null;
+
+
+    farStatus.textContent =
+      "Far mic error: " +
+      error.message;
+
+
+    resultEl.textContent =
+      "Could not activate Far Mic.";
+
+
+    return false;
+
+  }
+
+}
+
+
+/*************************************************
+ STOP FAR MIC STREAM
+*************************************************/
+
+function stopFarMicStream() {
+
+  if (!farMicStream) {
+    return;
+  }
+
+
+  farMicStream
+    .getTracks()
+    .forEach(
+      function(track) {
+
+        track.stop();
+
+      }
+    );
+
+
+  farMicStream =
+    null;
+
+}
+
+
+/*************************************************
+ NORMALIZE
 *************************************************/
 
 function normalizeText(text) {
@@ -561,10 +879,6 @@ function commitFinalTranscript(newText) {
   }
 
 
-  /*
-    Exact duplicate
-  */
-
   if (
     newText === lastFinalRaw
   ) {
@@ -575,18 +889,9 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    Chrome expanded the previous phrase.
+    Progressive Chrome result.
 
-    Example:
-
-    તો પછી
-
-    becomes:
-
-    તો પછી એન્જોય કરો
-
-    Add ONLY:
-    એન્જોય કરો
+    Add only new ending.
   */
 
   if (
@@ -622,7 +927,7 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    Ignore shorter duplicate version.
+    Ignore shorter duplicate.
   */
 
   if (
@@ -680,7 +985,7 @@ function showTranscript() {
 
 
 /*************************************************
- CREATE SPEECH RECOGNITION
+ CREATE RECOGNIZER
 *************************************************/
 
 function createRecognizer() {
@@ -723,7 +1028,7 @@ function createRecognizer() {
 
 
 /*************************************************
- SPEECH RESULT
+ RESULT
 *************************************************/
 
   recognition.onresult =
@@ -762,9 +1067,7 @@ function createRecognizer() {
 
 
         if (!transcript) {
-
           continue;
-
         }
 
 
@@ -772,23 +1075,17 @@ function createRecognizer() {
           result.isFinal
         ) {
 
-
           commitFinalTranscript(
             transcript
           );
 
         }
 
-
         else {
 
+          if (currentInterim) {
 
-          if (
-            currentInterim
-          ) {
-
-            currentInterim +=
-              " ";
+            currentInterim += " ";
 
           }
 
@@ -811,7 +1108,7 @@ function createRecognizer() {
 
 
 /*************************************************
- SPEECH ERROR
+ ERROR
 *************************************************/
 
   recognition.onerror =
@@ -843,29 +1140,22 @@ function createRecognizer() {
     function() {
 
 
-      interimText =
-        "";
+      interimText = "";
 
 
       /*
-        User pressed STOP
+        USER STOP
       */
 
-      if (
-        stopping
-      ) {
+      if (stopping) {
 
 
-        stopping =
-          false;
+        stopping = false;
 
-
-        listening =
-          false;
+        listening = false;
 
 
         updateMicButton();
-
 
         showTranscript();
 
@@ -880,14 +1170,10 @@ function createRecognizer() {
 
 
       /*
-        Chrome automatically stopped.
-
-        Restart automatically.
+        CHROME AUTO RESTART
       */
 
-      if (
-        listening
-      ) {
+      if (listening) {
 
 
         setTimeout(
@@ -903,8 +1189,7 @@ function createRecognizer() {
             try {
 
 
-              lastFinalRaw =
-                "";
+              lastFinalRaw = "";
 
 
               createRecognizer();
@@ -941,15 +1226,13 @@ function createRecognizer() {
 
 
 /*************************************************
- MIC BUTTON APPEARANCE
+ MIC BUTTON DISPLAY
 *************************************************/
 
 function updateMicButton() {
 
 
-  if (
-    listening
-  ) {
+  if (listening) {
 
 
     micBtn.classList.add(
@@ -966,14 +1249,23 @@ function updateMicButton() {
 
 
     statusEl.textContent =
-      "LISTENING...";
+      micMode === "far"
+        ? "📡 FAR MIC LISTENING..."
+        : "LISTENING...";
 
 
     languageEl.disabled =
       true;
 
-  }
 
+    normalModeBtn.disabled =
+      true;
+
+
+    farModeBtn.disabled =
+      true;
+
+  }
 
   else {
 
@@ -994,6 +1286,14 @@ function updateMicButton() {
     languageEl.disabled =
       false;
 
+
+    normalModeBtn.disabled =
+      false;
+
+
+    farModeBtn.disabled =
+      false;
+
   }
 
 }
@@ -1005,47 +1305,64 @@ function updateMicButton() {
 
 micBtn.addEventListener(
   "click",
-  function() {
+
+  async function() {
 
 
     /*********************************************
-     START LISTENING
+     START
     *********************************************/
 
-    if (
-      !listening
-    ) {
+    if (!listening) {
 
-
-      /*
-        Stop reading first.
-      */
 
       stopReading();
 
 
-      finalText =
-        "";
+      finalText = "";
+
+      interimText = "";
+
+      lastFinalRaw = "";
+
+      stopping = false;
 
 
-      interimText =
-        "";
+      heardEl.value = "";
+
+      resultEl.textContent = "";
 
 
-      lastFinalRaw =
-        "";
+      /*
+        Prepare enhanced microphone
+        processing before recognition.
+      */
+
+      if (
+        micMode === "far"
+      ) {
 
 
-      stopping =
-        false;
+        const ok =
+          await prepareFarMic();
 
 
-      heardEl.value =
-        "";
+        if (!ok) {
 
+          resultEl.textContent =
+            "Far Mic could not be activated. You can switch to NORMAL.";
 
-      resultEl.textContent =
-        "";
+          return;
+
+        }
+
+      }
+
+      else {
+
+        stopFarMicStream();
+
+      }
 
 
       if (
@@ -1063,8 +1380,7 @@ micBtn.addEventListener(
         recognition.start();
 
 
-        listening =
-          true;
+        listening = true;
 
 
         updateMicButton();
@@ -1088,11 +1404,10 @@ micBtn.addEventListener(
 
 
     /*********************************************
-     STOP LISTENING
+     STOP
     *********************************************/
 
-    stopping =
-      true;
+    stopping = true;
 
 
     statusEl.textContent =
@@ -1100,7 +1415,6 @@ micBtn.addEventListener(
 
 
     try {
-
 
       recognition.stop();
 
@@ -1110,12 +1424,9 @@ micBtn.addEventListener(
     catch(error) {
 
 
-      stopping =
-        false;
+      stopping = false;
 
-
-      listening =
-        false;
+      listening = false;
 
 
       updateMicButton();
@@ -1131,7 +1442,7 @@ micBtn.addEventListener(
 
 
 /*************************************************
- MANUAL TEXT EDIT
+ MANUAL EDIT
 *************************************************/
 
 heardEl.addEventListener(
@@ -1139,9 +1450,7 @@ heardEl.addEventListener(
   function() {
 
 
-    if (
-      !listening
-    ) {
+    if (!listening) {
 
 
       finalText =
@@ -1166,14 +1475,10 @@ clearBtn.addEventListener(
   function() {
 
 
-    if (
-      listening
-    ) {
-
+    if (listening) {
 
       resultEl.textContent =
         "Stop listening before clearing.";
-
 
       return;
 
@@ -1183,20 +1488,14 @@ clearBtn.addEventListener(
     stopReading();
 
 
-    finalText =
-      "";
+    finalText = "";
+
+    interimText = "";
+
+    lastFinalRaw = "";
 
 
-    interimText =
-      "";
-
-
-    lastFinalRaw =
-      "";
-
-
-    heardEl.value =
-      "";
+    heardEl.value = "";
 
 
     resultEl.textContent =
@@ -1211,7 +1510,7 @@ clearBtn.addEventListener(
 
 
 /*************************************************
- LOAD READ-BACK VOICES
+ TEXT TO SPEECH VOICES
 *************************************************/
 
 function loadVoices() {
@@ -1243,7 +1542,6 @@ if (
   "speechSynthesis"
   in window
 ) {
-
 
   window.speechSynthesis.onvoiceschanged =
     loadVoices;
@@ -1300,33 +1598,22 @@ function findVoice(
   }
 
 
-  /*
-    Browsers do not provide an official
-    male/female property.
-
-    We try common voice names.
-  */
-
   const femaleHints = [
-
     "female",
     "woman",
     "zira",
     "heera",
     "kalpana",
     "swara"
-
   ];
 
 
   const maleHints = [
-
     "male",
     "man",
     "david",
     "ravi",
     "hemant"
-
   ];
 
 
@@ -1350,9 +1637,7 @@ function findVoice(
     if (
       hints.some(
         hint =>
-          name.includes(
-            hint
-          )
+          name.includes(hint)
       )
     ) {
 
@@ -1363,27 +1648,19 @@ function findVoice(
   }
 
 
-  /*
-    If no gender-specific voice can
-    be identified, use the first
-    matching language voice.
-  */
-
   return matches[0];
 
 }
 
 
 /*************************************************
- READ BUTTON APPEARANCE
+ READ BUTTON DISPLAY
 *************************************************/
 
 function updateReadButton() {
 
 
-  if (
-    reading
-  ) {
+  if (reading) {
 
 
     readBtn.classList.add(
@@ -1399,7 +1676,6 @@ function updateReadButton() {
       "STOP READING";
 
   }
-
 
   else {
 
@@ -1433,14 +1709,12 @@ function stopReading() {
     in window
   ) {
 
-
     window.speechSynthesis.cancel();
 
   }
 
 
-  reading =
-    false;
+  reading = false;
 
 
   updateReadButton();
@@ -1449,7 +1723,7 @@ function stopReading() {
 
 
 /*************************************************
- READ / STOP READ TOGGLE
+ READ BUTTON
 *************************************************/
 
 readBtn.addEventListener(
@@ -1457,13 +1731,11 @@ readBtn.addEventListener(
   function() {
 
 
-    /*********************************************
-     STOP READING
-    *********************************************/
+    /*
+      STOP
+    */
 
-    if (
-      reading
-    ) {
+    if (reading) {
 
 
       stopReading();
@@ -1480,13 +1752,7 @@ readBtn.addEventListener(
     }
 
 
-    /*********************************************
-     DON'T READ WHILE LISTENING
-    *********************************************/
-
-    if (
-      listening
-    ) {
+    if (listening) {
 
 
       resultEl.textContent =
@@ -1498,17 +1764,11 @@ readBtn.addEventListener(
     }
 
 
-    /*********************************************
-     GET TEXT
-    *********************************************/
-
     const text =
       heardEl.value.trim();
 
 
-    if (
-      !text
-    ) {
+    if (!text) {
 
 
       resultEl.textContent =
@@ -1560,10 +1820,7 @@ readBtn.addEventListener(
       );
 
 
-    if (
-      selectedVoice
-    ) {
-
+    if (selectedVoice) {
 
       utterance.voice =
         selectedVoice;
@@ -1571,20 +1828,14 @@ readBtn.addEventListener(
     }
 
 
-    utterance.rate =
-      1.0;
+    utterance.rate = 1;
+
+    utterance.pitch = 1;
+
+    utterance.volume = 1;
 
 
-    utterance.pitch =
-      1.0;
-
-
-    utterance.volume =
-      1.0;
-
-
-    reading =
-      true;
+    reading = true;
 
 
     updateReadButton();
@@ -1598,8 +1849,7 @@ readBtn.addEventListener(
       function() {
 
 
-        reading =
-          false;
+        reading = false;
 
 
         updateReadButton();
@@ -1608,27 +1858,21 @@ readBtn.addEventListener(
         statusEl.textContent =
           "DICTATION READY";
 
-    };
+      };
 
 
     utterance.onerror =
       function(event) {
 
 
-        reading =
-          false;
+        reading = false;
 
 
         updateReadButton();
 
 
-        /*
-          Ignore normal cancellation.
-        */
-
         if (
-          event.error !==
-          "canceled"
+          event.error !== "canceled"
         ) {
 
 
@@ -1638,7 +1882,7 @@ readBtn.addEventListener(
 
         }
 
-    };
+      };
 
 
     window.speechSynthesis.speak(
@@ -1658,9 +1902,7 @@ saveBtn.addEventListener(
   function() {
 
 
-    if (
-      listening
-    ) {
+    if (listening) {
 
 
       resultEl.textContent =
@@ -1688,27 +1930,16 @@ saveBtn.addEventListener(
 function saveDictation() {
 
 
-  if (
-    saving
-  ) {
-
+  if (saving) {
     return;
-
   }
 
-
-  /*
-    Save exactly what is currently
-    inside the editable text box.
-  */
 
   const text =
     heardEl.value.trim();
 
 
-  if (
-    !text
-  ) {
+  if (!text) {
 
 
     resultEl.textContent =
@@ -1721,14 +1952,11 @@ function saveDictation() {
 
 
   if (
-    destinationEl.value ===
-    "local"
+    destinationEl.value === "local"
   ) {
 
 
-    saveLocal(
-      text
-    );
+    saveLocal(text);
 
 
     return;
@@ -1736,9 +1964,7 @@ function saveDictation() {
   }
 
 
-  saveGoogleDrive(
-    text
-  );
+  saveGoogleDrive(text);
 
 }
 
@@ -1761,9 +1987,7 @@ function saveLocal(text) {
       .endsWith(".txt")
   ) {
 
-
-    name +=
-      ".txt";
+    name += ".txt";
 
   }
 
@@ -1791,29 +2015,19 @@ function saveLocal(text) {
 
 
   const url =
-    URL.createObjectURL(
-      blob
-    );
+    URL.createObjectURL(blob);
 
 
   const a =
-    document.createElement(
-      "a"
-    );
+    document.createElement("a");
 
 
-  a.href =
-    url;
+  a.href = url;
+
+  a.download = name;
 
 
-  a.download =
-    name;
-
-
-  document.body
-    .appendChild(
-      a
-    );
+  document.body.appendChild(a);
 
 
   a.click();
@@ -1825,15 +2039,10 @@ function saveLocal(text) {
   setTimeout(
     function() {
 
-
-      URL.revokeObjectURL(
-        url
-      );
+      URL.revokeObjectURL(url);
 
     },
-
     1000
-
   );
 
 
@@ -1855,8 +2064,7 @@ function saveLocal(text) {
 function saveGoogleDrive(text) {
 
 
-  saving =
-    true;
+  saving = true;
 
 
   statusEl.textContent =
@@ -1895,11 +2103,9 @@ function saveGoogleDrive(text) {
     BACKEND_URL,
     {
 
-      method:
-        "POST",
+      method: "POST",
 
-      body:
-        data
+      body: data
 
     }
   )
@@ -1915,8 +2121,7 @@ function saveGoogleDrive(text) {
     data => {
 
 
-      saving =
-        false;
+      saving = false;
 
 
       if (
@@ -1933,7 +2138,6 @@ function saveGoogleDrive(text) {
           data.fileName;
 
       }
-
 
       else {
 
@@ -1955,8 +2159,7 @@ function saveGoogleDrive(text) {
     error => {
 
 
-      saving =
-        false;
+      saving = false;
 
 
       statusEl.textContent =
@@ -1973,7 +2176,7 @@ function saveGoogleDrive(text) {
 
 
 /*************************************************
- INITIAL BUTTON STATES
+ INITIAL STATE
 *************************************************/
 
 updateMicButton();
