@@ -19,8 +19,8 @@
 
 
 /* =========================================
-   PREVENT UI TEXT SELECTION
-   ONLY DICTATION BOX CAN BE SELECTED
+   PREVENT UI SELECTION
+   TEXTBOX REMAINS SELECTABLE
 ========================================= */
 
 body,
@@ -36,9 +36,6 @@ span {
   user-select: none;
   -webkit-touch-callout: none;
 }
-
-
-/* DICTATION TEXT REMAINS SELECTABLE */
 
 #heard {
   -webkit-user-select: text;
@@ -70,7 +67,7 @@ h1 {
 
 
 /* =========================================
-   FORM CONTROLS
+   CONTROLS
 ========================================= */
 
 .control {
@@ -88,7 +85,6 @@ label {
 select,
 input {
   width: 100%;
-
   padding: 12px;
 
   font-size: 17px;
@@ -98,6 +94,40 @@ input {
 
   border: 1px solid #444;
   border-radius: 12px;
+}
+
+
+/* =========================================
+   VOICE SELECTOR
+========================================= */
+
+.voiceRow {
+  display: flex;
+  gap: 8px;
+}
+
+#voiceSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+#testVoiceBtn {
+  width: 82px;
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #333;
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -143,12 +173,11 @@ input {
   cursor: pointer;
 
   touch-action: manipulation;
-
   -webkit-tap-highlight-color: transparent;
 }
 
 
-/* READY = BLUE */
+/* READY */
 
 #micBtn,
 #readBtn {
@@ -156,13 +185,12 @@ input {
 }
 
 
-/* ACTIVE = RED */
+/* ACTIVE */
 
 #micBtn.listening,
 #readBtn.reading {
   background: #d71920;
 }
-
 
 .buttonIcon {
   font-size: 28px;
@@ -211,12 +239,11 @@ input {
 
 
 /* =========================================
-   CLEAR + SAVE
+   CLEAR / SAVE
 ========================================= */
 
 .smallButtons {
   display: flex;
-
   gap: 10px;
 
   margin: 14px 0;
@@ -238,15 +265,12 @@ input {
   cursor: pointer;
 
   touch-action: manipulation;
-
   -webkit-tap-highlight-color: transparent;
 }
-
 
 #clearBtn {
   background: #333;
 }
-
 
 #saveBtn {
   background: #16803a;
@@ -266,7 +290,6 @@ input {
   font-size: 17px;
   font-weight: bold;
 }
-
 
 .small {
   margin-top: 6px;
@@ -293,9 +316,7 @@ input {
 
 <div class="control">
 
-<label>
-Language
-</label>
+<label>Language</label>
 
 <select id="language">
 
@@ -326,21 +347,24 @@ Language
 
 <div class="control">
 
-<label>
-Read Voice
-</label>
+<label>Read Voice</label>
 
-<select id="voiceGender">
+<div class="voiceRow">
 
-  <option value="female">
-    👩 Female
+<select id="voiceSelect">
+  <option value="">
+    Loading voices...
   </option>
-
-  <option value="male">
-    👨 Male
-  </option>
-
 </select>
+
+<button
+  id="testVoiceBtn"
+  type="button"
+>
+TEST
+</button>
+
+</div>
 
 </div>
 
@@ -351,9 +375,7 @@ Read Voice
 
 <div class="control">
 
-<label>
-Save Destination
-</label>
+<label>Save Destination</label>
 
 <select id="destination">
 
@@ -376,9 +398,7 @@ Save Destination
 
 <div class="control">
 
-<label>
-File Name
-</label>
+<label>File Name</label>
 
 <input
   id="fileName"
@@ -389,14 +409,12 @@ File Name
 
 
 <!-- =========================================
-     GOOGLE DRIVE OPTIONS
+     GOOGLE DRIVE
 ========================================= -->
 
 <div id="driveOptions">
 
-<label>
-Google Drive Format
-</label>
+<label>Google Drive Format</label>
 
 <select id="driveFormat">
 
@@ -414,9 +432,7 @@ Google Drive Format
 <br><br>
 
 
-<label>
-Google Drive Folder URL
-</label>
+<label>Google Drive Folder URL</label>
 
 <input
   id="folder"
@@ -432,7 +448,7 @@ Paste Google Drive folder URL or folder ID.
 
 
 <!-- =========================================
-     LISTEN BUTTON
+     MIC BUTTON
 ========================================= -->
 
 <button
@@ -461,7 +477,7 @@ PRESS BLUE TO LISTEN
 
 
 <!-- =========================================
-     DICTATION TEXTBOX
+     TEXTBOX
 ========================================= -->
 
 <textarea
@@ -471,7 +487,7 @@ PRESS BLUE TO LISTEN
 
 
 <!-- =========================================
-     READ BUTTON
+     READ
 ========================================= -->
 
 <button
@@ -495,7 +511,7 @@ READ
 
 
 <!-- =========================================
-     CLEAR + SAVE
+     CLEAR / SAVE
 ========================================= -->
 
 <div class="smallButtons">
@@ -560,6 +576,13 @@ const readText =
   document.getElementById("readText");
 
 
+const voiceSelectEl =
+  document.getElementById("voiceSelect");
+
+const testVoiceBtn =
+  document.getElementById("testVoiceBtn");
+
+
 const statusEl =
   document.getElementById("status");
 
@@ -572,9 +595,6 @@ const resultEl =
 
 const languageEl =
   document.getElementById("language");
-
-const voiceGenderEl =
-  document.getElementById("voiceGender");
 
 
 const destinationEl =
@@ -621,11 +641,12 @@ let interimText = "";
 
 let lastFinalRaw = "";
 
+
 let availableVoices = [];
 
 
 /*************************************************
- SAVE DESTINATION
+ DESTINATION
 *************************************************/
 
 destinationEl.addEventListener(
@@ -648,7 +669,7 @@ updateDestination();
 
 
 /*************************************************
- NORMALIZE TEXT
+ NORMALIZE
 *************************************************/
 
 function normalizeText(text) {
@@ -690,9 +711,9 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    PROGRESSIVELY LONGER RESULT
+    LONGER VERSION OF SAME RESULT
 
-    Add only the new ending.
+    Only append new words.
   */
 
   if (
@@ -789,7 +810,7 @@ function showTranscript() {
 
 
 /*************************************************
- CREATE SPEECH RECOGNITION
+ CREATE RECOGNIZER
 *************************************************/
 
 function createRecognizer() {
@@ -834,7 +855,7 @@ function createRecognizer() {
 
 
 /*************************************************
- SPEECH RESULT
+ RESULT
 *************************************************/
 
   recognition.onresult =
@@ -914,8 +935,10 @@ function createRecognizer() {
 
 
       /*
-        REPLACE INTERIM TEXT.
-        NEVER APPEND IT.
+        IMPORTANT:
+
+        Interim text is replaced.
+        It is NOT repeatedly appended.
       */
 
       interimText =
@@ -928,7 +951,7 @@ function createRecognizer() {
 
 
 /*************************************************
- SPEECH ERROR
+ ERROR
 *************************************************/
 
   recognition.onerror =
@@ -936,7 +959,7 @@ function createRecognizer() {
 
 
       /*
-        Ignore normal abort after STOP.
+        Ignore normal STOP abort.
       */
 
       if (
@@ -953,10 +976,6 @@ function createRecognizer() {
         "MIC ERROR: " +
         event.error;
 
-
-      /*
-        Serious errors stop recognition.
-      */
 
       if (
         event.error === "not-allowed" ||
@@ -981,7 +1000,7 @@ function createRecognizer() {
 
 
 /*************************************************
- RECOGNITION ENDED
+ END
 *************************************************/
 
   recognition.onend =
@@ -989,9 +1008,9 @@ function createRecognizer() {
 
 
       /*
-        User stopped.
+        User pressed STOP.
 
-        DO NOT RESTART.
+        Do not restart.
       */
 
       if (
@@ -1013,21 +1032,15 @@ function createRecognizer() {
 
 
       /*
-        Chrome may stop during silence.
+        Chrome sometimes ends during silence.
 
-        Restart ONLY if the user still
-        wants the microphone active.
+        Restart only if LISTEN is still active.
       */
 
       setTimeout(
 
         function() {
 
-
-          /*
-            Check again to prevent a
-            STOP / restart race.
-          */
 
           if (
             !shouldRestart ||
@@ -1148,7 +1161,7 @@ micBtn.addEventListener(
 
 
     /*********************************************
-     START LISTENING
+     START
     *********************************************/
 
     if (
@@ -1157,7 +1170,7 @@ micBtn.addEventListener(
 
 
       /*
-        Stop read-back first.
+        Immediately stop TTS before opening mic.
       */
 
       stopReading();
@@ -1208,20 +1221,12 @@ micBtn.addEventListener(
       try {
 
 
-        /*
-          Change state first.
-        */
-
         listening =
           true;
 
 
         updateMicButton();
 
-
-        /*
-          Then start Chrome recognition.
-        */
 
         recognition.start();
 
@@ -1255,12 +1260,12 @@ micBtn.addEventListener(
 
 
     /*********************************************
-     STOP LISTENING
+     STOP
     *********************************************/
 
 
     /*
-      FIRST prevent automatic restart.
+      FIRST disable automatic restart.
     */
 
     shouldRestart =
@@ -1268,7 +1273,7 @@ micBtn.addEventListener(
 
 
     /*
-      SECOND change app state.
+      SECOND change state immediately.
     */
 
     listening =
@@ -1276,7 +1281,7 @@ micBtn.addEventListener(
 
 
     /*
-      THIRD immediately change RED to BLUE.
+      THIRD change button RED -> BLUE immediately.
     */
 
     updateMicButton();
@@ -1298,7 +1303,7 @@ micBtn.addEventListener(
 
 
     /*
-      LAST tell Chrome to stop.
+      LAST stop Chrome recognition.
     */
 
     try {
@@ -1331,7 +1336,7 @@ micBtn.addEventListener(
 
 
 /*************************************************
- MANUAL TEXT EDITING
+ MANUAL TEXT EDIT
 *************************************************/
 
 heardEl.addEventListener(
@@ -1413,7 +1418,10 @@ clearBtn.addEventListener(
 
 
 /*************************************************
- LOAD SPEECH VOICES
+ LOAD DEVICE VOICES
+
+ READ ONLY.
+ DOES NOT TOUCH MICROPHONE.
 *************************************************/
 
 function loadVoices() {
@@ -1435,8 +1443,169 @@ function loadVoices() {
     window.speechSynthesis
       .getVoices();
 
+
+  const previousSelection =
+    voiceSelectEl.value;
+
+
+  voiceSelectEl.innerHTML =
+    "";
+
+
+  const selectedLanguage =
+    languageEl.value.toLowerCase();
+
+
+  const baseLanguage =
+    selectedLanguage.split("-")[0];
+
+
+  /*
+    Find voices matching current language.
+  */
+
+  let matchingVoices =
+    availableVoices.filter(
+      function(voice) {
+
+
+        const voiceLanguage =
+          String(
+            voice.lang || ""
+          ).toLowerCase();
+
+
+        return (
+          voiceLanguage === selectedLanguage ||
+          voiceLanguage.startsWith(
+            baseLanguage + "-"
+          )
+        );
+
+      }
+    );
+
+
+  /*
+    If no exact language voices exist,
+    show all voices.
+  */
+
+  if (
+    matchingVoices.length === 0
+  ) {
+
+
+    matchingVoices =
+      availableVoices;
+
+  }
+
+
+  /*
+    Browser may initially return zero voices.
+  */
+
+  if (
+    matchingVoices.length === 0
+  ) {
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      "";
+
+
+    option.textContent =
+      "Default device voice";
+
+
+    voiceSelectEl.appendChild(
+      option
+    );
+
+
+    return;
+
+  }
+
+
+  matchingVoices.forEach(
+    function(voice) {
+
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        availableVoices.indexOf(
+          voice
+        );
+
+
+      let name =
+        voice.name +
+        " — " +
+        voice.lang;
+
+
+      if (
+        voice.default
+      ) {
+
+
+        name +=
+          " ★";
+
+      }
+
+
+      option.textContent =
+        name;
+
+
+      voiceSelectEl.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  /*
+    Restore selected voice if possible.
+  */
+
+  if (
+    previousSelection &&
+    [...voiceSelectEl.options]
+      .some(
+        option =>
+          option.value ===
+          previousSelection
+      )
+  ) {
+
+
+    voiceSelectEl.value =
+      previousSelection;
+
+  }
+
 }
 
+
+/*************************************************
+ LOAD VOICES ONCE
+*************************************************/
 
 loadVoices();
 
@@ -1454,47 +1623,33 @@ if (
 
 
 /*************************************************
- FIND READ VOICE
+ LANGUAGE CHANGE
+
+ Only refreshes TTS voice list.
 *************************************************/
 
-function findVoice(
-  language,
-  gender
-) {
+languageEl.addEventListener(
+  "change",
+  loadVoices
+);
 
 
-  const lang =
-    language.toLowerCase();
+/*************************************************
+ GET SELECTED VOICE
+*************************************************/
+
+function getSelectedVoice() {
 
 
-  const baseLang =
-    lang.split("-")[0];
-
-
-  const matches =
-    availableVoices.filter(
-      function(voice) {
-
-
-        const voiceLanguage =
-          String(
-            voice.lang || ""
-          ).toLowerCase();
-
-
-        return (
-          voiceLanguage === lang ||
-          voiceLanguage.startsWith(
-            baseLang + "-"
-          )
-        );
-
-      }
+  const index =
+    Number(
+      voiceSelectEl.value
     );
 
 
   if (
-    matches.length === 0
+    Number.isNaN(index) ||
+    !availableVoices[index]
   ) {
 
 
@@ -1503,70 +1658,148 @@ function findVoice(
   }
 
 
-  const femaleHints = [
+  return availableVoices[index];
 
-    "female",
-    "woman",
-    "zira",
-    "heera",
-    "kalpana",
-    "swara"
-
-  ];
+}
 
 
-  const maleHints = [
+/*************************************************
+ TEST VOICE
+*************************************************/
 
-    "male",
-    "man",
-    "david",
-    "ravi",
-    "hemant"
+testVoiceBtn.addEventListener(
+  "click",
 
-  ];
-
-
-  const hints =
-    gender === "male"
-      ? maleHints
-      : femaleHints;
-
-
-  for (
-    const voice of matches
-  ) {
-
-
-    const name =
-      String(
-        voice.name || ""
-      ).toLowerCase();
+  function() {
 
 
     if (
-      hints.some(
-        function(hint) {
+      listening
+    ) {
 
 
-          return name.includes(
-            hint
-          );
+      resultEl.textContent =
+        "Stop listening before testing voice.";
 
-        }
+
+      return;
+
+    }
+
+
+    if (
+      !(
+        "speechSynthesis"
+        in window
       )
     ) {
 
 
-      return voice;
+      resultEl.textContent =
+        "Text-to-speech is not supported.";
+
+
+      return;
 
     }
 
+
+    /*
+      Stop existing speech.
+    */
+
+    window.speechSynthesis.cancel();
+
+
+    const language =
+      languageEl.value;
+
+
+    let sample =
+      "Hello. This is a sample of this voice.";
+
+
+    if (
+      language === "gu-IN"
+    ) {
+
+
+      sample =
+        "નમસ્તે. આ અવાજનો નમૂનો છે.";
+
+    }
+
+
+    else if (
+      language === "hi-IN"
+    ) {
+
+
+      sample =
+        "नमस्ते। यह आवाज़ का एक नमूना है।";
+
+    }
+
+
+    else if (
+      language === "en-IN"
+    ) {
+
+
+      sample =
+        "Hello. This is a sample of the selected voice.";
+
+    }
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        sample
+      );
+
+
+    utterance.lang =
+      language;
+
+
+    const selectedVoice =
+      getSelectedVoice();
+
+
+    if (
+      selectedVoice
+    ) {
+
+
+      utterance.voice =
+        selectedVoice;
+
+    }
+
+
+    /*
+      Slightly slower sounds more natural
+      on many Android voices.
+    */
+
+    utterance.rate =
+      0.95;
+
+
+    utterance.pitch =
+      1.0;
+
+
+    utterance.volume =
+      1.0;
+
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+
   }
-
-
-  return matches[0];
-
-}
+);
 
 
 /*************************************************
@@ -1644,7 +1877,7 @@ function stopReading() {
 
 
 /*************************************************
- READ / STOP READING
+ READ
 *************************************************/
 
 readBtn.addEventListener(
@@ -1677,7 +1910,7 @@ readBtn.addEventListener(
 
 
     /*********************************************
-     DON'T READ WHILE LISTENING
+     MIC HAS PRIORITY
     *********************************************/
 
     if (
@@ -1729,10 +1962,11 @@ readBtn.addEventListener(
     }
 
 
+    /*
+      Clear old speech queue.
+    */
+
     window.speechSynthesis.cancel();
-
-
-    loadVoices();
 
 
     const utterance =
@@ -1746,10 +1980,7 @@ readBtn.addEventListener(
 
 
     const selectedVoice =
-      findVoice(
-        languageEl.value,
-        voiceGenderEl.value
-      );
+      getSelectedVoice();
 
 
     if (
@@ -1763,8 +1994,15 @@ readBtn.addEventListener(
     }
 
 
+    /*
+      Natural-ish system TTS settings.
+
+      These only affect playback.
+      They have NO effect on microphone.
+    */
+
     utterance.rate =
-      1.0;
+      0.95;
 
 
     utterance.pitch =
@@ -1800,7 +2038,7 @@ readBtn.addEventListener(
         statusEl.textContent =
           "DICTATION READY";
 
-    };
+      };
 
 
     utterance.onerror =
@@ -1826,7 +2064,7 @@ readBtn.addEventListener(
 
         }
 
-    };
+      };
 
 
     window.speechSynthesis.speak(
@@ -1871,7 +2109,7 @@ saveBtn.addEventListener(
 
 
 /*************************************************
- SAVE DICTATION
+ SAVE
 *************************************************/
 
 function saveDictation() {
@@ -1885,10 +2123,6 @@ function saveDictation() {
 
   }
 
-
-  /*
-    Save exactly what is in textbox.
-  */
 
   const text =
     heardEl.value.trim();
@@ -1932,7 +2166,7 @@ function saveDictation() {
 
 
 /*************************************************
- SAVE LOCAL TXT
+ LOCAL TXT
 *************************************************/
 
 function saveLocal(text) {
@@ -2037,7 +2271,7 @@ function saveLocal(text) {
 
 
 /*************************************************
- SAVE GOOGLE DRIVE
+ GOOGLE DRIVE
 *************************************************/
 
 function saveGoogleDrive(text) {
@@ -2166,7 +2400,7 @@ function saveGoogleDrive(text) {
 
 
 /*************************************************
- INITIAL STATE
+ INITIAL
 *************************************************/
 
 updateMicButton();
