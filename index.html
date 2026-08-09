@@ -1,1 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1">
 
+  <title>Mic Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px 15px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      font-size: 32px;
+    }
+
+    #micBtn {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: none;
+      background: #16a34a;
+      color: white;
+      font-size: 85px;
+      cursor: pointer;
+      margin-top: 25px;
+    }
+
+    #micBtn.listening {
+      background: #dc2626;
+    }
+
+    #status {
+      font-size: 26px;
+      font-weight: bold;
+      margin-top: 25px;
+    }
+
+    #heard {
+      max-width: 600px;
+      min-height: 100px;
+      margin: 25px auto;
+      padding: 20px;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      font-size: 28px;
+      word-break: break-word;
+    }
+
+    #result {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Microphone Test</h1>
+
+<button id="micBtn">🎤</button>
+
+<div id="status">
+  PRESS GREEN TO START
+</div>
+
+<div id="heard">
+  —
+</div>
+
+<div id="result">
+  —
+</div>
+
+
+<script>
+
+const BACKEND_URL =
+  "https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
+
+
+const micBtn =
+  document.getElementById("micBtn");
+
+const statusEl =
+  document.getElementById("status");
+
+const heardEl =
+  document.getElementById("heard");
+
+const resultEl =
+  document.getElementById("result");
+
+
+let recognition = null;
+let listening = false;
+let finalText = "";
+
+
+/****************************************
+ SPEECH RECOGNITION
+****************************************/
+
+function initSpeech() {
+
+  const SR =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+  if (!SR) {
+
+    alert(
+      "Speech recognition is not supported. Use Chrome or Edge."
+    );
+
+    return false;
+  }
+
+
+  recognition = new SR();
+
+  recognition.lang = "en-US";
+
+  recognition.interimResults = true;
+
+  recognition.maxAlternatives = 1;
+
+
+  recognition.onresult = function(event) {
+
+    let interim = "";
+
+
+    for (
+      let i = event.resultIndex;
+      i < event.results.length;
+      i++
+    ) {
+
+      const text =
+        event.results[i][0].transcript;
+
+
+      if (event.results[i].isFinal) {
+
+        finalText += text + " ";
+
+      }
+
+      else {
+
+        interim += text;
+
+      }
+
+    }
+
+
+    heardEl.textContent =
+      (finalText + interim).trim();
+
+  };
+
+
+  recognition.onerror = function(event) {
+
+    resultEl.textContent =
+      "MIC ERROR: " + event.error;
+
+  };
+
+
+  recognition.onend = function() {
+
+    if (listening) {
+
+      listening = false;
+
+      updateButton();
+
+      saveSpeech();
+
+    }
+
+  };
+
+
+  return true;
+}
+
+
+/****************************************
+ BUTTON DISPLAY
+****************************************/
+
+function updateButton() {
+
+  if (listening) {
+
+    micBtn.classList.add("listening");
+
+    statusEl.textContent =
+      "LISTENING - PRESS RED TO STOP";
+
+  }
+
+  else {
+
+    micBtn.classList.remove("listening");
+
+    statusEl.textContent =
+      "PRESS GREEN TO START";
+
+  }
+
+}
+
+
+/****************************************
+ MIC BUTTON
+****************************************/
+
+micBtn.addEventListener("click", function() {
+
+
+  /******** START ********/
+
+  if (!listening) {
+
+    if (!recognition) {
+
+      if (!initSpeech()) return;
+
+    }
+
+
+    finalText = "";
+
+    heardEl.textContent =
+      "Listening...";
+
+    resultEl.textContent =
+      "Listening...";
+
+
+    try {
+
+      recognition.start();
+
+      listening = true;
+
+      updateButton();
+
+    }
+
+    catch(error) {
+
+      resultEl.textContent =
+        "Could not start microphone: " +
+        error.message;
+
+    }
+
+
+    return;
+  }
+
+
+  /******** STOP ********/
+
+  listening = false;
+
+  updateButton();
+
+
+  try {
+
+    recognition.stop();
+
+  }
+
+  catch(error) {}
+
+
+  setTimeout(
+    saveSpeech,
+    300
+  );
+
+});
+
+
+/****************************************
+ SEND SPEECH TO APPS SCRIPT
+****************************************/
+
+let saving = false;
+
+
+function saveSpeech() {
+
+  if (saving) return;
+
+
+  const text =
+    heardEl.textContent.trim();
+
+
+  if (
+    !text ||
+    text === "Listening..." ||
+    text === "—"
+  ) {
+
+    resultEl.textContent =
+      "Nothing heard";
+
+    return;
+  }
+
+
+  saving = true;
+
+  resultEl.textContent =
+    "Saving to Sheet...";
+
+
+  const formData =
+    new URLSearchParams();
+
+  formData.append(
+    "text",
+    text
+  );
+
+
+  fetch(
+    BACKEND_URL,
+    {
+      method: "POST",
+      body: formData
+    }
+  )
+
+  .then(response =>
+    response.json()
+  )
+
+  .then(data => {
+
+    if (data.success) {
+
+      resultEl.textContent =
+        "SAVED TO " +
+        data.cell;
+
+    }
+
+    else {
+
+      resultEl.textContent =
+        "SAVE ERROR: " +
+        data.error;
+
+    }
+
+    saving = false;
+
+  })
+
+  .catch(error => {
+
+    resultEl.textContent =
+      "CONNECTION ERROR: " +
+      error.message;
+
+    saving = false;
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
