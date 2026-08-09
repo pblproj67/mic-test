@@ -68,7 +68,7 @@ h1 {
 
 
 /* =========================================================
-   REF-03 — STANDARD CONTROLS
+   REF-03 — CONTROLS
 ========================================================= */
 
 .control {
@@ -134,7 +134,7 @@ input {
 
 
 /* =========================================================
-   REF-05 — DRIVE OPTIONS
+   REF-05 — DRIVE
 ========================================================= */
 
 #driveOptions {
@@ -208,7 +208,7 @@ input {
 
 
 /* =========================================================
-   REF-08 — DICTATION TEXTBOX
+   REF-08 — TEXTBOX
 ========================================================= */
 
 #heard {
@@ -239,10 +239,7 @@ input {
 }
 
 
-/*
-  While listening:
-  no edit, no selection, no keyboard.
-*/
+/* LOCK TEXTBOX WHILE LISTENING */
 
 #heard.listeningLock {
   -webkit-user-select: none;
@@ -256,14 +253,14 @@ input {
 }
 
 
-/* LIVE border */
+/* LIVE VIEW */
 
 #heard.liveView {
   border-color: #16803a;
 }
 
 
-/* FROZEN border */
+/* FROZEN VIEW */
 
 #heard.frozenView {
   border-color: #f59e0b;
@@ -271,7 +268,7 @@ input {
 
 
 /* =========================================================
-   REF-09 — SMALL BUTTONS
+   REF-09 — CLEAR / SAVE
 ========================================================= */
 
 .smallButtons {
@@ -654,7 +651,18 @@ let recognitionRunning = false;
 
 let manualStop = false;
 
+
+/*
+  LIVE VIEW
+
+  true  = textbox updates and scrolls
+  false = textbox display remains frozen
+
+  Recognition continues either way.
+*/
+
 let liveView = true;
+
 
 let saving = false;
 
@@ -662,29 +670,22 @@ let reading = false;
 
 
 /*
-  Confirmed speech accumulated across
-  Chrome recognition restarts.
+  Confirmed final transcript.
 */
 
-let committedText = "";
+let finalText = "";
 
 
 /*
-  Current recognition-session FINAL text.
+  Current temporary Chrome hypothesis.
 */
 
-let sessionFinalText = "";
+let interimText = "";
 
 
 /*
-  Current temporary hypothesis.
-
-  DISPLAY ONLY.
-  Never committed during automatic restart.
+  Available TTS voices.
 */
-
-let sessionInterimText = "";
-
 
 let availableVoices = [];
 
@@ -713,7 +714,7 @@ updateDestination();
 
 
 /* =========================================================
-   REF-24 — NORMALIZE TEXT
+   REF-24 — NORMALIZE
 ========================================================= */
 
 function normalizeText(text) {
@@ -726,154 +727,35 @@ function normalizeText(text) {
 
 
 /* =========================================================
-   REF-25 — OVERLAP MERGE
-
-   Used only between confirmed chunks.
+   REF-25 — CURRENT DISPLAY TEXT
 ========================================================= */
 
-function mergeConfirmedText(base, addition) {
-
-  base =
-    normalizeText(base);
-
-  addition =
-    normalizeText(addition);
-
-
-  if (!addition) {
-    return base;
-  }
-
-
-  if (!base) {
-    return addition;
-  }
-
-
-  if (
-    base === addition ||
-    base.endsWith(addition)
-  ) {
-
-    return base;
-
-  }
-
-
-  const baseWords =
-    base.split(" ");
-
-  const addWords =
-    addition.split(" ");
-
-
-  const maxOverlap =
-    Math.min(
-      18,
-      baseWords.length,
-      addWords.length
-    );
-
-
-  for (
-    let size = maxOverlap;
-    size >= 2;
-    size--
-  ) {
-
-
-    const left =
-      baseWords
-        .slice(
-          baseWords.length - size
-        )
-        .join(" ")
-        .toLowerCase();
-
-
-    const right =
-      addWords
-        .slice(0, size)
-        .join(" ")
-        .toLowerCase();
-
-
-    if (
-      left === right
-    ) {
-
-
-      const remainder =
-        addWords
-          .slice(size)
-          .join(" ");
-
-
-      if (!remainder) {
-        return base;
-      }
-
-
-      return normalizeText(
-        base +
-        " " +
-        remainder
-      );
-
-    }
-
-  }
-
-
-  return normalizeText(
-    base +
-    " " +
-    addition
-  );
-
-}
-
-
-/* =========================================================
-   REF-26 — CURRENT FULL TEXT
-========================================================= */
-
-function getCurrentTranscript(
-  includeInterim = true
-) {
+function getDisplayText() {
 
   let text =
-    mergeConfirmedText(
-      committedText,
-      sessionFinalText
-    );
+    normalizeText(finalText);
 
 
-  if (
-    includeInterim &&
-    sessionInterimText
-  ) {
+  const temp =
+    normalizeText(interimText);
 
 
-    text =
-      normalizeText(
-        text +
-        (text ? " " : "") +
-        sessionInterimText
-      );
+  if (temp) {
+
+    text +=
+      (text ? " " : "") +
+      temp;
 
   }
 
 
-  return normalizeText(
-    text
-  );
+  return normalizeText(text);
 
 }
 
 
 /* =========================================================
-   REF-27 — DISPLAY
+   REF-26 — REFRESH TEXTBOX
 ========================================================= */
 
 function refreshTranscriptDisplay(
@@ -882,9 +764,9 @@ function refreshTranscriptDisplay(
 
 
   /*
-    Frozen view means:
-    microphone keeps working,
-    textbox stays untouched.
+    FROZEN VIEW:
+    recognition continues,
+    textbox does not change.
   */
 
   if (
@@ -899,8 +781,13 @@ function refreshTranscriptDisplay(
 
 
   heardEl.value =
-    getCurrentTranscript(true);
+    getDisplayText();
 
+
+  /*
+    LIVE VIEW:
+    keep newest text visible.
+  */
 
   if (
     listening &&
@@ -917,11 +804,16 @@ function refreshTranscriptDisplay(
 
 
 /* =========================================================
-   REF-28 — TEXTBOX MODE
+   REF-27 — TEXTBOX MODE
 ========================================================= */
 
 function updateTextboxMode() {
 
+
+  /*
+    NOT LISTENING:
+    normal edit/select/copy/paste.
+  */
 
   if (!listening) {
 
@@ -943,8 +835,8 @@ function updateTextboxMode() {
 
 
   /*
-    While listening:
-    force readonly to block Android keyboard.
+    LISTENING:
+    prevent keyboard and selection.
   */
 
   heardEl.readOnly =
@@ -988,14 +880,12 @@ function updateTextboxMode() {
 
 
 /* =========================================================
-   REF-29 — BLOCK MOBILE KEYBOARD WHILE LISTENING
-
-   Android may attempt focus before click.
-   Intercept pointer/touch first.
+   REF-28 — BLOCK MOBILE KEYBOARD WHILE LISTENING
 ========================================================= */
 
 heardEl.addEventListener(
   "pointerdown",
+
   function(event) {
 
 
@@ -1015,6 +905,7 @@ heardEl.addEventListener(
 
 heardEl.addEventListener(
   "touchstart",
+
   function(event) {
 
 
@@ -1037,11 +928,12 @@ heardEl.addEventListener(
 
 
 /* =========================================================
-   REF-30 — TAP TEXTBOX: LIVE / FREEZE
+   REF-29 — TAP TEXTBOX: LIVE / FREEZE
 ========================================================= */
 
 heardEl.addEventListener(
   "click",
+
   function(event) {
 
 
@@ -1065,6 +957,10 @@ heardEl.addEventListener(
 
     if (liveView) {
 
+
+      /*
+        Catch up immediately.
+      */
 
       refreshTranscriptDisplay(true);
 
@@ -1091,134 +987,12 @@ heardEl.addEventListener(
 
 
 /* =========================================================
-   REF-31 — REBUILD CURRENT CHROME SESSION
+   REF-30 — CREATE RECOGNIZER
 
-   IMPORTANT:
+   SIMPLE RELIABILITY MODEL:
 
-   We rebuild using event.results each time.
-
-   No progressive append logic.
-========================================================= */
-
-function rebuildRecognitionSession(results) {
-
-  const finalParts = [];
-
-  const interimParts = [];
-
-
-  for (
-    let i = 0;
-    i < results.length;
-    i++
-  ) {
-
-
-    const result =
-      results[i];
-
-
-    if (
-      !result ||
-      !result[0]
-    ) {
-
-      continue;
-
-    }
-
-
-    const text =
-      normalizeText(
-        result[0].transcript
-      );
-
-
-    if (!text) {
-      continue;
-    }
-
-
-    if (
-      result.isFinal
-    ) {
-
-
-      finalParts.push(
-        text
-      );
-
-    }
-
-    else {
-
-
-      interimParts.push(
-        text
-      );
-
-    }
-
-  }
-
-
-  sessionFinalText =
-    normalizeText(
-      finalParts.join(" ")
-    );
-
-
-  sessionInterimText =
-    normalizeText(
-      interimParts.join(" ")
-    );
-
-}
-
-
-/* =========================================================
-   REF-32 — COMMIT CONFIRMED SPEECH ONLY
-
-   Critical change:
-
-   Interim text is NOT committed during
-   automatic recognition restart.
-
-   This avoids:
-   "behind"
-   "behind"
-   "behind closed doors"
-========================================================= */
-
-function commitConfirmedSession() {
-
-
-  if (
-    sessionFinalText
-  ) {
-
-
-    committedText =
-      mergeConfirmedText(
-        committedText,
-        sessionFinalText
-      );
-
-  }
-
-
-  sessionFinalText =
-    "";
-
-
-  sessionInterimText =
-    "";
-
-}
-
-
-/* =========================================================
-   REF-33 — CREATE RECOGNIZER
+   FINAL   -> permanent
+   INTERIM -> display only
 ========================================================= */
 
 function createRecognizer() {
@@ -1263,7 +1037,7 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-34 — STARTED
+   REF-31 — RECOGNITION START
 ========================================================= */
 
   recognition.onstart =
@@ -1277,16 +1051,104 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-35 — RESULT
+   REF-32 — RECOGNITION RESULT
+
+   IMPORTANT:
+
+   Chrome may repeatedly revise interim text:
+
+   diplomacy
+   diplomacy often
+   diplomacy often gets
+   diplomacy often gets a bad rep
+
+   Those are replacements, NOT new text.
+
+   We append ONLY isFinal results.
 ========================================================= */
 
   recognition.onresult =
     function(event) {
 
 
-      rebuildRecognitionSession(
-        event.results
-      );
+      let newInterim =
+        "";
+
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+
+        const result =
+          event.results[i];
+
+
+        if (
+          !result ||
+          !result[0]
+        ) {
+
+          continue;
+
+        }
+
+
+        const text =
+          normalizeText(
+            result[0].transcript
+          );
+
+
+        if (!text) {
+          continue;
+        }
+
+
+        /*
+          FINAL RESULT:
+          permanently append ONCE.
+        */
+
+        if (
+          result.isFinal
+        ) {
+
+
+          finalText +=
+            (finalText ? " " : "") +
+            text;
+
+        }
+
+
+        /*
+          INTERIM RESULT:
+          replace current temporary hypothesis.
+        */
+
+        else {
+
+
+          newInterim +=
+            (newInterim ? " " : "") +
+            text;
+
+        }
+
+      }
+
+
+      /*
+        REPLACE interim completely.
+      */
+
+      interimText =
+        normalizeText(
+          newInterim
+        );
 
 
       refreshTranscriptDisplay();
@@ -1295,12 +1157,16 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-36 — ERROR
+   REF-33 — RECOGNITION ERROR
 ========================================================= */
 
   recognition.onerror =
     function(event) {
 
+
+      /*
+        Manual stop may generate aborted.
+      */
 
       if (
         event.error === "aborted" &&
@@ -1313,7 +1179,7 @@ function createRecognizer() {
 
 
       /*
-        no-speech is not treated as fatal.
+        no-speech is not fatal.
       */
 
       if (
@@ -1360,14 +1226,11 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-37 — END
+   REF-34 — RECOGNITION END
 
-   Efficiency/reliability rules:
-
-   - commit FINAL only
-   - discard interim on automatic end
-   - quick restart
-   - no overlapping recognition instances
+   - discard interim
+   - preserve finalText
+   - restart quickly if user is still listening
 ========================================================= */
 
   recognition.onend =
@@ -1379,14 +1242,12 @@ function createRecognizer() {
 
 
       /*
-        Save confirmed speech.
-        Do NOT preserve interim here.
+        Interim was never confirmed.
+        Do not permanently append it.
       */
 
-      commitConfirmedSession();
-
-
-      refreshTranscriptDisplay();
+      interimText =
+        "";
 
 
       /*
@@ -1408,7 +1269,8 @@ function createRecognizer() {
 
 
       /*
-        Chrome ended naturally.
+        Chrome stopped automatically.
+
         Restart quickly.
       */
 
@@ -1432,7 +1294,7 @@ function createRecognizer() {
 
         },
 
-        40
+        50
 
       );
 
@@ -1445,7 +1307,7 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-38 — START RECOGNITION SESSION
+   REF-35 — START RECOGNITION SESSION
 ========================================================= */
 
 function startRecognitionSession() {
@@ -1503,7 +1365,7 @@ function startRecognitionSession() {
 
 
 /* =========================================================
-   REF-39 — MIC BUTTON UI
+   REF-36 — MIC BUTTON UI
 ========================================================= */
 
 function updateMicButton() {
@@ -1572,11 +1434,12 @@ function updateMicButton() {
 
 
 /* =========================================================
-   REF-40 — MIC START / STOP
+   REF-37 — MIC START / STOP
 ========================================================= */
 
 micBtn.addEventListener(
   "click",
+
   function() {
 
 
@@ -1587,18 +1450,22 @@ micBtn.addEventListener(
     if (!listening) {
 
 
+      /*
+        Stop speaker playback.
+      */
+
       stopReading();
 
 
-      committedText =
+      /*
+        Fresh dictation.
+      */
+
+      finalText =
         "";
 
 
-      sessionFinalText =
-        "";
-
-
-      sessionInterimText =
+      interimText =
         "";
 
 
@@ -1613,6 +1480,10 @@ micBtn.addEventListener(
       resultEl.textContent =
         "";
 
+
+      /*
+        LIVE VIEW defaults ON.
+      */
 
       liveView =
         true;
@@ -1646,7 +1517,7 @@ micBtn.addEventListener(
 
 
     /*
-      Immediately block all restart logic.
+      Prevent any restart immediately.
     */
 
     manualStop =
@@ -1658,44 +1529,31 @@ micBtn.addEventListener(
 
 
     /*
-      Preserve only confirmed results
-      available at this moment.
+      Button changes RED -> BLUE immediately.
     */
-
-    if (
-      sessionFinalText
-    ) {
-
-
-      committedText =
-        mergeConfirmedText(
-          committedText,
-          sessionFinalText
-        );
-
-    }
-
-
-    /*
-      We intentionally do NOT append
-      interim text here.
-
-      It prevents progressive repetition.
-    */
-
-    sessionFinalText =
-      "";
-
-
-    sessionInterimText =
-      "";
-
 
     updateMicButton();
 
 
+    /*
+      Re-enable textbox editing.
+    */
+
     updateTextboxMode();
 
+
+    /*
+      Do not append interim.
+    */
+
+    interimText =
+      "";
+
+
+    /*
+      Show full confirmed transcript,
+      even if view was frozen.
+    */
 
     refreshTranscriptDisplay(true);
 
@@ -1732,26 +1590,23 @@ micBtn.addEventListener(
 
 
 /* =========================================================
-   REF-41 — MANUAL TEXT EDIT
+   REF-38 — MANUAL TEXT EDIT
 ========================================================= */
 
 heardEl.addEventListener(
   "input",
+
   function() {
 
 
     if (!listening) {
 
 
-      committedText =
+      finalText =
         heardEl.value;
 
 
-      sessionFinalText =
-        "";
-
-
-      sessionInterimText =
+      interimText =
         "";
 
     }
@@ -1761,11 +1616,12 @@ heardEl.addEventListener(
 
 
 /* =========================================================
-   REF-42 — CLEAR
+   REF-39 — CLEAR
 ========================================================= */
 
 clearBtn.addEventListener(
   "click",
+
   function() {
 
 
@@ -1784,15 +1640,11 @@ clearBtn.addEventListener(
     stopReading();
 
 
-    committedText =
+    finalText =
       "";
 
 
-    sessionFinalText =
-      "";
-
-
-    sessionInterimText =
+    interimText =
       "";
 
 
@@ -1816,7 +1668,7 @@ clearBtn.addEventListener(
 
 
 /* =========================================================
-   REF-43 — LOAD DEVICE TTS VOICES
+   REF-40 — LOAD DEVICE TTS VOICES
 ========================================================= */
 
 function loadVoices() {
@@ -1982,7 +1834,7 @@ function loadVoices() {
 
 
 /* =========================================================
-   REF-44 — VOICE LOAD
+   REF-41 — VOICE LOAD
 ========================================================= */
 
 loadVoices();
@@ -2007,7 +1859,7 @@ languageEl.addEventListener(
 
 
 /* =========================================================
-   REF-45 — SELECTED VOICE
+   REF-42 — SELECTED VOICE
 ========================================================= */
 
 function getSelectedVoice() {
@@ -2036,11 +1888,12 @@ function getSelectedVoice() {
 
 
 /* =========================================================
-   REF-46 — TEST VOICE
+   REF-43 — TEST VOICE
 ========================================================= */
 
 testVoiceBtn.addEventListener(
   "click",
+
   function() {
 
 
@@ -2161,7 +2014,7 @@ testVoiceBtn.addEventListener(
 
 
 /* =========================================================
-   REF-47 — READ BUTTON UI
+   REF-44 — READ BUTTON UI
 ========================================================= */
 
 function updateReadButton() {
@@ -2205,7 +2058,7 @@ function updateReadButton() {
 
 
 /* =========================================================
-   REF-48 — STOP READING
+   REF-45 — STOP READING
 ========================================================= */
 
 function stopReading() {
@@ -2232,13 +2085,18 @@ function stopReading() {
 
 
 /* =========================================================
-   REF-49 — READ
+   REF-46 — READ
 ========================================================= */
 
 readBtn.addEventListener(
   "click",
+
   function() {
 
+
+    /*
+      STOP READING
+    */
 
     if (reading) {
 
@@ -2256,6 +2114,10 @@ readBtn.addEventListener(
 
     }
 
+
+    /*
+      MIC HAS PRIORITY
+    */
 
     if (listening) {
 
@@ -2380,8 +2242,7 @@ readBtn.addEventListener(
 
 
         if (
-          event.error !==
-          "canceled"
+          event.error !== "canceled"
         ) {
 
 
@@ -2403,11 +2264,12 @@ readBtn.addEventListener(
 
 
 /* =========================================================
-   REF-50 — SAVE BUTTON
+   REF-47 — SAVE BUTTON
 ========================================================= */
 
 saveBtn.addEventListener(
   "click",
+
   function() {
 
 
@@ -2433,7 +2295,7 @@ saveBtn.addEventListener(
 
 
 /* =========================================================
-   REF-51 — SAVE
+   REF-48 — SAVE
 ========================================================= */
 
 function saveDictation() {
@@ -2480,7 +2342,7 @@ function saveDictation() {
 
 
 /* =========================================================
-   REF-52 — LOCAL TXT
+   REF-49 — LOCAL TXT
 ========================================================= */
 
 function saveLocal(text) {
@@ -2583,7 +2445,7 @@ function saveLocal(text) {
 
 
 /* =========================================================
-   REF-53 — GOOGLE DRIVE
+   REF-50 — GOOGLE DRIVE
 ========================================================= */
 
 function saveGoogleDrive(text) {
@@ -2706,7 +2568,7 @@ function saveGoogleDrive(text) {
 
 
 /* =========================================================
-   REF-54 — INITIAL STATE
+   REF-51 — INITIAL STATE
 ========================================================= */
 
 updateMicButton();
