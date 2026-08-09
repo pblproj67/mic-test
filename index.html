@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -13,11 +12,9 @@
 
 <title>Voice Dictation</title>
 
-
 <style>
 
 body {
-
   font-family:
     system-ui,
     -apple-system,
@@ -27,169 +24,91 @@ body {
     sans-serif;
 
   max-width: 800px;
-
   margin: 20px auto;
-
   padding: 15px;
-
   text-align: center;
-
   background: #f5f5f5;
-
 }
-
 
 h1 {
-
   font-size: 32px;
-
 }
-
 
 .control {
-
   margin: 14px 0;
-
 }
-
 
 label {
-
   display: block;
-
   margin-bottom: 5px;
-
   font-size: 17px;
-
   font-weight: bold;
-
 }
-
 
 select,
 input {
-
   width: 100%;
-
   max-width: 600px;
-
   padding: 12px;
-
   font-size: 18px;
-
-  border:
-
-    1px solid #aaa;
-
+  border: 1px solid #aaa;
   border-radius: 8px;
-
   box-sizing: border-box;
-
 }
-
 
 #driveOptions {
-
   max-width: 650px;
-
   margin: auto;
-
   padding: 15px;
-
   background: white;
-
   border-radius: 12px;
-
 }
-
 
 #micBtn {
-
   display: block;
-
   width: 210px;
-
   height: 210px;
-
   margin: 25px auto;
-
   border: none;
-
   border-radius: 50%;
-
   background: #16a34a;
-
   color: white;
-
   font-size: 82px;
-
   cursor: pointer;
-
 }
-
 
 #micBtn.listening {
-
   background: #dc2626;
-
 }
-
 
 #status {
-
   font-size: 24px;
-
   font-weight: bold;
-
   margin: 20px;
-
 }
-
 
 #heard {
-
   min-height: 220px;
-
   padding: 20px;
-
   background: white;
-
-  border:
-
-    2px solid #ccc;
-
+  border: 2px solid #ccc;
   border-radius: 12px;
-
   font-size: 24px;
-
   line-height: 1.5;
-
   text-align: left;
-
   white-space: pre-wrap;
-
   overflow-wrap: anywhere;
-
 }
-
 
 #result {
-
   margin-top: 20px;
-
   font-size: 21px;
-
   font-weight: bold;
-
 }
 
-
 .small {
-
   font-size: 14px;
-
   color: #666;
-
 }
 
 </style>
@@ -199,85 +118,71 @@ input {
 
 <body>
 
-
 <h1>Voice Dictation</h1>
-
 
 
 <!-- LANGUAGE -->
 
 <div class="control">
 
-<label>
-Language
-</label>
+  <label>Language</label>
 
+  <select id="language">
 
-<select id="language">
+    <option value="gu-IN" selected>
+      🇮🇳 ગુજરાતી / Gujarati
+    </option>
 
-  <option value="hi-IN">
-    🇮🇳 Hindi / Hinglish
-  </option>
+    <option value="hi-IN">
+      🇮🇳 Hindi / Hinglish
+    </option>
 
-  <option value="gu-IN" selected>
-    🇮🇳 ગુજરાતી / Gujarati
-  </option>
+    <option value="en-IN">
+      🇮🇳 English (India)
+    </option>
 
-  <option value="en-IN">
-    🇮🇳 English (India)
-  </option>
+    <option value="en-US">
+      🇺🇸 English (US)
+    </option>
 
-  <option value="en-US">
-    🇺🇸 English (US)
-  </option>
-
-</select>
+  </select>
 
 </div>
-
 
 
 <!-- SAVE DESTINATION -->
 
 <div class="control">
 
-<label>
-Save Destination
-</label>
+  <label>Save Destination</label>
 
+  <select id="destination">
 
-<select id="destination">
+    <option value="drive">
+      Google Drive
+    </option>
 
-<option value="drive">
-Google Drive
-</option>
+    <option value="local">
+      Local Device
+    </option>
 
-<option value="local">
-Local Device
-</option>
-
-</select>
+  </select>
 
 </div>
-
 
 
 <!-- FILE NAME -->
 
 <div class="control">
 
-<label>
-File Name
-</label>
+  <label>File Name</label>
 
-
-<input
-  id="fileName"
-  value="Voice Dictation Transcripts"
-/>
+  <input
+    id="fileName"
+    value="Voice Dictation Transcripts"
+  >
 
 </div>
-
 
 
 <!-- GOOGLE DRIVE OPTIONS -->
@@ -287,48 +192,36 @@ File Name
   class="control"
 >
 
+  <label>Google Drive Format</label>
 
-<label>
-Google Drive Format
-</label>
+  <select id="driveFormat">
 
+    <option value="gdoc">
+      Google Doc
+    </option>
 
-<select id="driveFormat">
+    <option value="txt">
+      TXT File
+    </option>
 
-<option value="gdoc">
-Google Doc
-</option>
-
-<option value="txt">
-TXT File
-</option>
-
-</select>
+  </select>
 
 
-
-<br><br>
-
-
-<label>
-Google Drive Folder URL
-</label>
+  <br><br>
 
 
-<input
-  id="folder"
-  placeholder="Leave blank for My Drive"
-/>
+  <label>Google Drive Folder URL</label>
 
+  <input
+    id="folder"
+    placeholder="Leave blank for My Drive"
+  >
 
-<div class="small">
-
-Paste a Google Drive folder URL or folder ID.
+  <div class="small">
+    Paste Google Drive folder URL or folder ID.
+  </div>
 
 </div>
-
-</div>
-
 
 
 <!-- MIC -->
@@ -337,49 +230,38 @@ Paste a Google Drive folder URL or folder ID.
   id="micBtn"
   type="button"
 >
-
 🎤
-
 </button>
 
 
-
 <div id="status">
-
 PRESS GREEN TO START
-
 </div>
-
 
 
 <div id="heard">
-
 —
-
 </div>
-
 
 
 <div id="result">
-
 —
-
 </div>
-
 
 
 <script>
 
-/***********************************************
- BACKEND
-***********************************************/
+/*************************************************
+ * APPS SCRIPT BACKEND
+ *************************************************/
 
 const BACKEND_URL =
 "https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
 
-/***********************************************
- ELEMENTS
-***********************************************/
+
+/*************************************************
+ * ELEMENTS
+ *************************************************/
 
 const micBtn =
   document.getElementById("micBtn");
@@ -412,9 +294,9 @@ const folderEl =
   document.getElementById("folder");
 
 
-/***********************************************
- STATE
-***********************************************/
+/*************************************************
+ * STATE
+ *************************************************/
 
 let recognition = null;
 
@@ -424,14 +306,29 @@ let stopping = false;
 
 let saving = false;
 
+
+/*
+  Permanent confirmed transcript
+*/
 let finalText = "";
 
+
+/*
+  Current temporary Chrome hypothesis
+*/
 let interimText = "";
 
 
-/***********************************************
- DESTINATION UI
-***********************************************/
+/*
+  Used to prevent progressive duplicate
+  final phrases.
+*/
+let lastFinalRaw = "";
+
+
+/*************************************************
+ * DESTINATION DISPLAY
+ *************************************************/
 
 destinationEl.addEventListener(
   "change",
@@ -442,8 +339,7 @@ destinationEl.addEventListener(
 function updateDestination() {
 
   if (
-    destinationEl.value ===
-    "drive"
+    destinationEl.value === "drive"
   ) {
 
     driveOptionsEl.style.display =
@@ -464,19 +360,160 @@ function updateDestination() {
 updateDestination();
 
 
-/***********************************************
- DISPLAY TRANSCRIPT
-***********************************************/
+/*************************************************
+ * NORMALIZE TEXT
+ *************************************************/
+
+function normalizeText(text) {
+
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+}
+
+
+/*************************************************
+ * ADD FINAL SPEECH WITHOUT REPETITION
+ *************************************************/
+
+function commitFinalTranscript(newText) {
+
+  newText =
+    normalizeText(newText);
+
+
+  if (!newText) {
+    return;
+  }
+
+
+  /*
+    EXACT DUPLICATE
+
+    Example:
+
+    "તો પછી એન્જોય કરો"
+    "તો પછી એન્જોય કરો"
+
+    Ignore second copy.
+  */
+
+  if (
+    newText === lastFinalRaw
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+    PROGRESSIVELY LONGER RESULT
+
+    Chrome may send:
+
+    તો પછી
+
+    then:
+
+    તો પછી એન્જોય કરો
+
+    then:
+
+    તો પછી એન્જોય કરો ને લાઇફ
+
+    We add ONLY the new ending.
+  */
+
+  if (
+    lastFinalRaw &&
+    newText.startsWith(lastFinalRaw)
+  ) {
+
+    const extra =
+      normalizeText(
+        newText.slice(
+          lastFinalRaw.length
+        )
+      );
+
+
+    if (extra) {
+
+      finalText +=
+        (finalText ? " " : "") +
+        extra;
+
+    }
+
+
+    lastFinalRaw =
+      newText;
+
+
+    return;
+
+  }
+
+
+  /*
+    Sometimes Chrome gives a shorter version
+    of the phrase it already finalized.
+
+    Example:
+
+    previous:
+    "તો પછી એન્જોય કરો ને લાઇફ"
+
+    new:
+    "તો પછી એન્જોય કરો"
+
+    Do NOT add it again.
+  */
+
+  if (
+    lastFinalRaw &&
+    lastFinalRaw.startsWith(newText)
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+    NEW PHRASE
+
+    Append normally.
+  */
+
+  finalText +=
+    (finalText ? " " : "") +
+    newText;
+
+
+  lastFinalRaw =
+    newText;
+
+}
+
+
+/*************************************************
+ * DISPLAY TRANSCRIPT
+ *************************************************/
 
 function showTranscript() {
 
   let display =
-    finalText.trim();
+    normalizeText(finalText);
 
 
-  if (
-    interimText.trim()
-  ) {
+  const temp =
+    normalizeText(interimText);
+
+
+  if (temp) {
 
     if (display) {
 
@@ -484,9 +521,7 @@ function showTranscript() {
 
     }
 
-
-    display +=
-      interimText.trim();
+    display += temp;
 
   }
 
@@ -498,9 +533,9 @@ function showTranscript() {
 }
 
 
-/***********************************************
- CREATE RECOGNIZER
-***********************************************/
+/*************************************************
+ * CREATE SPEECH RECOGNIZER
+ *************************************************/
 
 function createRecognizer() {
 
@@ -528,6 +563,10 @@ function createRecognizer() {
     languageEl.value;
 
 
+  /*
+    Long dictation
+  */
+
   recognition.continuous =
     true;
 
@@ -540,29 +579,29 @@ function createRecognizer() {
     1;
 
 
-
-  /*********************************************
-   RESULTS
-  *********************************************/
+/*************************************************
+ * SPEECH RESULTS
+ *************************************************/
 
   recognition.onresult =
     function(event) {
 
 
-      let currentInterim =
-        "";
+      /*
+        IMPORTANT:
+
+        Rebuild temporary text every time.
+
+        Never permanently append interim text.
+      */
+
+      let currentInterim = "";
 
 
       for (
-
-        let i =
-          event.resultIndex;
-
-        i <
-          event.results.length;
-
+        let i = event.resultIndex;
+        i < event.results.length;
         i++
-
       ) {
 
 
@@ -570,10 +609,20 @@ function createRecognizer() {
           event.results[i];
 
 
+        if (
+          !result ||
+          !result[0]
+        ) {
+
+          continue;
+
+        }
+
+
         const transcript =
-          result[0]
-            .transcript
-            .trim();
+          normalizeText(
+            result[0].transcript
+          );
 
 
         if (!transcript) {
@@ -583,34 +632,26 @@ function createRecognizer() {
         }
 
 
-        /***************************************
-         FINAL
-        ***************************************/
+        /****************************************
+         * FINAL RESULT
+         ****************************************/
 
         if (
           result.isFinal
         ) {
 
-
-          if (finalText) {
-
-            finalText += " ";
-
-          }
-
-
-          finalText +=
-            transcript;
+          commitFinalTranscript(
+            transcript
+          );
 
         }
 
 
-        /***************************************
-         INTERIM
-        ***************************************/
+        /****************************************
+         * INTERIM RESULT
+         ****************************************/
 
         else {
-
 
           if (
             currentInterim
@@ -631,8 +672,9 @@ function createRecognizer() {
 
 
       /*
-        Replace temporary result.
-        Never append it permanently.
+        REPLACE old interim.
+
+        Never append the old interim.
       */
 
       interimText =
@@ -644,18 +686,16 @@ function createRecognizer() {
     };
 
 
-
-  /*********************************************
-   ERROR
-  *********************************************/
+/*************************************************
+ * SPEECH ERROR
+ *************************************************/
 
   recognition.onerror =
     function(event) {
 
 
       if (
-        event.error ===
-          "aborted" &&
+        event.error === "aborted" &&
         stopping
       ) {
 
@@ -668,27 +708,32 @@ function createRecognizer() {
         "MIC ERROR: " +
         event.error;
 
-    };
+  };
 
 
-
-  /*********************************************
-   ENDED
-  *********************************************/
+/*************************************************
+ * SPEECH ENDED
+ *************************************************/
 
   recognition.onend =
     function() {
 
 
-      interimText =
-        "";
+      /*
+        Temporary result belongs only
+        to the recognition session.
+      */
+
+      interimText = "";
 
 
-      /***************************************
-       USER STOP
-      ***************************************/
+      /****************************************
+       * USER PRESSED RED
+       ****************************************/
 
-      if (stopping) {
+      if (
+        stopping
+      ) {
 
 
         stopping =
@@ -713,11 +758,15 @@ function createRecognizer() {
       }
 
 
-      /***************************************
-       CHROME AUTO STOP
-      ***************************************/
+      /****************************************
+       * CHROME AUTOMATICALLY ENDED
+       *
+       * Restart while keeping finalText.
+       ****************************************/
 
-      if (listening) {
+      if (
+        listening
+      ) {
 
 
         setTimeout(
@@ -725,7 +774,9 @@ function createRecognizer() {
           function() {
 
 
-            if (!listening) {
+            if (
+              !listening
+            ) {
 
               return;
 
@@ -735,17 +786,33 @@ function createRecognizer() {
             try {
 
 
+              /*
+                New recognition session.
+
+                Reset comparison because
+                Chrome's new session starts
+                with new result indexes.
+              */
+
+              lastFinalRaw =
+                "";
+
+
               createRecognizer();
 
 
               recognition.start();
 
-
             }
 
-            catch(e) {
 
-              console.log(e);
+            catch(error) {
+
+
+              console.log(
+                "Restart error:",
+                error
+              );
 
             }
 
@@ -757,7 +824,7 @@ function createRecognizer() {
 
       }
 
-    };
+  };
 
 
   return true;
@@ -765,14 +832,15 @@ function createRecognizer() {
 }
 
 
-/***********************************************
- BUTTON UI
-***********************************************/
+/*************************************************
+ * BUTTON DISPLAY
+ *************************************************/
 
 function updateButton() {
 
-
-  if (listening) {
+  if (
+    listening
+  ) {
 
 
     micBtn.classList.add(
@@ -793,6 +861,14 @@ function updateButton() {
 
 
     driveFormatEl.disabled =
+      true;
+
+
+    fileNameEl.disabled =
+      true;
+
+
+    folderEl.disabled =
       true;
 
   }
@@ -821,14 +897,22 @@ function updateButton() {
     driveFormatEl.disabled =
       false;
 
+
+    fileNameEl.disabled =
+      false;
+
+
+    folderEl.disabled =
+      false;
+
   }
 
 }
 
 
-/***********************************************
- MIC BUTTON
-***********************************************/
+/*************************************************
+ * MIC BUTTON
+ *************************************************/
 
 micBtn.addEventListener(
 
@@ -837,18 +921,28 @@ micBtn.addEventListener(
   function() {
 
 
-    /*******************************************
-     GREEN → START
-    *******************************************/
+    /********************************************
+     * GREEN → START
+     ********************************************/
 
-    if (!listening) {
+    if (
+      !listening
+    ) {
 
+
+      /*
+        Completely fresh dictation
+      */
 
       finalText =
         "";
 
 
       interimText =
+        "";
+
+
+      lastFinalRaw =
         "";
 
 
@@ -903,10 +997,9 @@ micBtn.addEventListener(
     }
 
 
-
-    /*******************************************
-     RED → STOP
-    *******************************************/
+    /********************************************
+     * RED → STOP
+     ********************************************/
 
     stopping =
       true;
@@ -921,11 +1014,10 @@ micBtn.addEventListener(
 
       recognition.stop();
 
-
     }
 
 
-    catch(e) {
+    catch(error) {
 
 
       stopping =
@@ -948,14 +1040,15 @@ micBtn.addEventListener(
 );
 
 
-/***********************************************
- SAVE
-***********************************************/
+/*************************************************
+ * SAVE DICTATION
+ *************************************************/
 
 function saveDictation() {
 
-
-  if (saving) {
+  if (
+    saving
+  ) {
 
     return;
 
@@ -963,15 +1056,22 @@ function saveDictation() {
 
 
   /*
-    IMPORTANT:
-    SAVE FINAL RESULTS ONLY.
+    CRITICAL:
+
+    SAVE ONLY CONFIRMED FINAL TEXT.
+
+    interimText is NEVER added here.
   */
 
   const text =
-    finalText.trim();
+    normalizeText(
+      finalText
+    );
 
 
-  if (!text) {
+  if (
+    !text
+  ) {
 
 
     resultEl.textContent =
@@ -987,10 +1087,9 @@ function saveDictation() {
     text;
 
 
-
   /*********************************************
-   LOCAL DEVICE
-  *********************************************/
+   * LOCAL DEVICE
+   *********************************************/
 
   if (
     destinationEl.value ===
@@ -998,7 +1097,9 @@ function saveDictation() {
   ) {
 
 
-    saveLocal(text);
+    saveLocal(
+      text
+    );
 
 
     return;
@@ -1006,19 +1107,20 @@ function saveDictation() {
   }
 
 
-
   /*********************************************
-   GOOGLE DRIVE
-  *********************************************/
+   * GOOGLE DRIVE
+   *********************************************/
 
-  saveGoogleDrive(text);
+  saveGoogleDrive(
+    text
+  );
 
 }
 
 
-/***********************************************
- LOCAL TXT
-***********************************************/
+/*************************************************
+ * SAVE LOCAL TXT
+ *************************************************/
 
 function saveLocal(text) {
 
@@ -1034,7 +1136,8 @@ function saveLocal(text) {
       .endsWith(".txt")
   ) {
 
-    name += ".txt";
+    name +=
+      ".txt";
 
   }
 
@@ -1085,7 +1188,9 @@ function saveLocal(text) {
 
 
   document.body
-    .appendChild(a);
+    .appendChild(
+      a
+    );
 
 
   a.click();
@@ -1095,6 +1200,7 @@ function saveLocal(text) {
 
 
   setTimeout(
+
     function() {
 
       URL.revokeObjectURL(
@@ -1104,6 +1210,7 @@ function saveLocal(text) {
     },
 
     1000
+
   );
 
 
@@ -1118,9 +1225,9 @@ function saveLocal(text) {
 }
 
 
-/***********************************************
- GOOGLE DRIVE
-***********************************************/
+/*************************************************
+ * SAVE GOOGLE DRIVE
+ *************************************************/
 
 function saveGoogleDrive(text) {
 
