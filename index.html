@@ -14,7 +14,7 @@
 <style>
 
 /* =========================================================
-   REF-01 — GENERAL PAGE
+   REF-01 — GLOBAL
 ========================================================= */
 
 * {
@@ -34,6 +34,11 @@ span {
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+
+/* =========================================================
+   REF-02 — PAGE
+========================================================= */
 
 body {
   font-family:
@@ -57,13 +62,13 @@ body {
 }
 
 h1 {
-  font-size: 28px;
   margin: 10px 0 18px;
+  font-size: 28px;
 }
 
 
 /* =========================================================
-   REF-02 — FORM CONTROLS
+   REF-03 — STANDARD CONTROLS
 ========================================================= */
 
 .control {
@@ -91,13 +96,12 @@ input {
   background: #181818;
 
   border: 1px solid #444;
-
   border-radius: 12px;
 }
 
 
 /* =========================================================
-   REF-03 — VOICE SELECTOR
+   REF-04 — VOICE SELECTOR
 ========================================================= */
 
 .voiceRow {
@@ -113,10 +117,7 @@ input {
 #testVoiceBtn {
   width: 82px;
 
-  flex-shrink: 0;
-
   border: none;
-
   border-radius: 12px;
 
   background: #333;
@@ -128,13 +129,12 @@ input {
   cursor: pointer;
 
   touch-action: manipulation;
-
   -webkit-tap-highlight-color: transparent;
 }
 
 
 /* =========================================================
-   REF-04 — GOOGLE DRIVE
+   REF-05 — DRIVE OPTIONS
 ========================================================= */
 
 #driveOptions {
@@ -143,13 +143,12 @@ input {
   background: #111;
 
   border: 1px solid #333;
-
   border-radius: 14px;
 }
 
 
 /* =========================================================
-   REF-05 — MAIN BUTTONS
+   REF-06 — MAIN BUTTONS
 ========================================================= */
 
 .mainButton {
@@ -161,13 +160,11 @@ input {
   gap: 14px;
 
   width: 100%;
-
   height: 66px;
 
   margin: 15px 0;
 
   border: none;
-
   border-radius: 16px;
 
   color: #fff;
@@ -178,26 +175,18 @@ input {
   cursor: pointer;
 
   touch-action: manipulation;
-
   -webkit-tap-highlight-color: transparent;
 }
-
-
-/* BLUE READY STATE */
 
 #micBtn,
 #readBtn {
   background: #0866ff;
 }
 
-
-/* RED ACTIVE STATE */
-
 #micBtn.listening,
 #readBtn.reading {
   background: #d71920;
 }
-
 
 .buttonIcon {
   font-size: 28px;
@@ -205,13 +194,13 @@ input {
 
 
 /* =========================================================
-   REF-06 — STATUS
+   REF-07 — STATUS
 ========================================================= */
 
 #status {
-  margin: 10px 0 14px;
-
   min-height: 25px;
+
+  margin: 10px 0 14px;
 
   font-size: 19px;
   font-weight: bold;
@@ -219,38 +208,29 @@ input {
 
 
 /* =========================================================
-   REF-07 — DICTATION TEXTBOX
+   REF-08 — DICTATION TEXTBOX
 ========================================================= */
 
 #heard {
   width: 100%;
 
   height: 320px;
+  min-height: 260px;
 
   padding: 16px;
 
   color: #fff;
-
   background: #101010;
 
   border: 2px solid #333;
-
   border-radius: 14px;
 
   font-size: 22px;
-
   line-height: 1.5;
-
-  resize: none;
 
   overflow-y: scroll;
 
-  scrollbar-width: auto;
-
-  /*
-    When microphone is OFF:
-    normal selection/editing is allowed.
-  */
+  resize: none;
 
   -webkit-user-select: text;
   user-select: text;
@@ -260,11 +240,8 @@ input {
 
 
 /*
-  WHILE LISTENING:
-
-  No text selection.
-  Tapping the box toggles
-  LIVE VIEW / FROZEN VIEW.
+  While listening:
+  no edit, no selection, no keyboard.
 */
 
 #heard.listeningLock {
@@ -279,18 +256,14 @@ input {
 }
 
 
-/*
-  LIVE VIEW
-*/
+/* LIVE border */
 
 #heard.liveView {
   border-color: #16803a;
 }
 
 
-/*
-  FROZEN VIEW
-*/
+/* FROZEN border */
 
 #heard.frozenView {
   border-color: #f59e0b;
@@ -298,12 +271,11 @@ input {
 
 
 /* =========================================================
-   REF-08 — CLEAR / SAVE
+   REF-09 — SMALL BUTTONS
 ========================================================= */
 
 .smallButtons {
   display: flex;
-
   gap: 10px;
 
   margin: 14px 0;
@@ -315,7 +287,6 @@ input {
   min-height: 52px;
 
   border: 1px solid #444;
-
   border-radius: 13px;
 
   color: #fff;
@@ -326,7 +297,6 @@ input {
   cursor: pointer;
 
   touch-action: manipulation;
-
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -336,19 +306,18 @@ input {
 
 #saveBtn {
   background: #16803a;
-
   border-color: #16803a;
 }
 
 
 /* =========================================================
-   REF-09 — RESULT
+   REF-10 — RESULT
 ========================================================= */
 
 #result {
-  margin: 15px 0 30px;
-
   min-height: 24px;
+
+  margin: 15px 0 30px;
 
   font-size: 17px;
   font-weight: bold;
@@ -358,7 +327,6 @@ input {
   margin-top: 6px;
 
   font-size: 13px;
-
   color: #aaa;
 }
 
@@ -374,14 +342,12 @@ input {
 
 
 <!-- =====================================================
-     REF-10 — LANGUAGE
+     REF-11 — LANGUAGE
 ===================================================== -->
 
 <div class="control">
 
-<label>
-Language
-</label>
+<label>Language</label>
 
 <select id="language">
 
@@ -397,10 +363,7 @@ Language
     🇮🇳 English (India)
   </option>
 
-  <option
-    value="en-US"
-    selected
-  >
+  <option value="en-US" selected>
     🇺🇸 English (US)
   </option>
 
@@ -410,30 +373,20 @@ Language
 
 
 <!-- =====================================================
-     REF-11 — READ VOICE
+     REF-12 — READ VOICE
 ===================================================== -->
 
 <div class="control">
 
-<label>
-Read Voice
-</label>
+<label>Read Voice</label>
 
 <div class="voiceRow">
 
 <select id="voiceSelect">
-
-  <option value="">
-    Loading voices...
-  </option>
-
+  <option value="">Loading voices...</option>
 </select>
 
-
-<button
-  id="testVoiceBtn"
-  type="button"
->
+<button id="testVoiceBtn" type="button">
 TEST
 </button>
 
@@ -443,14 +396,12 @@ TEST
 
 
 <!-- =====================================================
-     REF-12 — SAVE DESTINATION
+     REF-13 — SAVE DESTINATION
 ===================================================== -->
 
 <div class="control">
 
-<label>
-Save Destination
-</label>
+<label>Save Destination</label>
 
 <select id="destination">
 
@@ -468,14 +419,12 @@ Save Destination
 
 
 <!-- =====================================================
-     REF-13 — FILE NAME
+     REF-14 — FILE NAME
 ===================================================== -->
 
 <div class="control">
 
-<label>
-File Name
-</label>
+<label>File Name</label>
 
 <input
   id="fileName"
@@ -486,14 +435,12 @@ File Name
 
 
 <!-- =====================================================
-     REF-14 — GOOGLE DRIVE OPTIONS
+     REF-15 — GOOGLE DRIVE
 ===================================================== -->
 
 <div id="driveOptions">
 
-<label>
-Google Drive Format
-</label>
+<label>Google Drive Format</label>
 
 <select id="driveFormat">
 
@@ -507,19 +454,14 @@ Google Drive Format
 
 </select>
 
-
 <br><br>
 
-
-<label>
-Google Drive Folder URL
-</label>
+<label>Google Drive Folder URL</label>
 
 <input
   id="folder"
   placeholder="Leave blank for My Drive"
 >
-
 
 <div class="small">
 Paste Google Drive folder URL or folder ID.
@@ -529,7 +471,7 @@ Paste Google Drive folder URL or folder ID.
 
 
 <!-- =====================================================
-     REF-15 — LISTEN BUTTON
+     REF-16 — LISTEN BUTTON
 ===================================================== -->
 
 <button
@@ -558,7 +500,7 @@ PRESS BLUE TO LISTEN
 
 
 <!-- =====================================================
-     REF-16 — TEXTBOX
+     REF-17 — DICTATION TEXTBOX
 ===================================================== -->
 
 <textarea
@@ -568,7 +510,7 @@ PRESS BLUE TO LISTEN
 
 
 <!-- =====================================================
-     REF-17 — READ BUTTON
+     REF-18 — READ BUTTON
 ===================================================== -->
 
 <button
@@ -592,7 +534,7 @@ READ
 
 
 <!-- =====================================================
-     REF-18 — CLEAR / SAVE
+     REF-19 — CLEAR / SAVE
 ===================================================== -->
 
 <div class="smallButtons">
@@ -604,7 +546,6 @@ READ
 >
 CLEAR
 </button>
-
 
 <button
   id="saveBtn"
@@ -626,7 +567,7 @@ CLEAR
 <script>
 
 /* =========================================================
-   REF-19 — BACKEND
+   REF-20 — BACKEND
 ========================================================= */
 
 const BACKEND_URL =
@@ -634,7 +575,7 @@ const BACKEND_URL =
 
 
 /* =========================================================
-   REF-20 — ELEMENTS
+   REF-21 — ELEMENTS
 ========================================================= */
 
 const micBtn =
@@ -702,45 +643,18 @@ const saveBtn =
 
 
 /* =========================================================
-   REF-21 — STATE
+   REF-22 — STATE
 ========================================================= */
 
 let recognition = null;
 
-
-/*
-  TRUE while user wants microphone running.
-*/
-
 let listening = false;
-
-
-/*
-  TRUE when Chrome is actually inside
-  a recognition session.
-*/
 
 let recognitionRunning = false;
 
-
-/*
-  User pressed STOP.
-*/
-
 let manualStop = false;
 
-
-/*
-  LIVE VIEW:
-
-  true  = textbox updates and follows text
-  false = textbox display remains frozen
-
-  Recognition continues either way.
-*/
-
 let liveView = true;
-
 
 let saving = false;
 
@@ -748,7 +662,7 @@ let reading = false;
 
 
 /*
-  Text permanently preserved across
+  Confirmed speech accumulated across
   Chrome recognition restarts.
 */
 
@@ -756,29 +670,27 @@ let committedText = "";
 
 
 /*
-  Current Chrome recognition-session
-  confirmed text.
+  Current recognition-session FINAL text.
 */
 
 let sessionFinalText = "";
 
 
 /*
-  Current temporary / interim text.
+  Current temporary hypothesis.
+
+  DISPLAY ONLY.
+  Never committed during automatic restart.
 */
 
 let sessionInterimText = "";
 
 
-/*
-  Available TTS voices.
-*/
-
 let availableVoices = [];
 
 
 /* =========================================================
-   REF-22 — SAVE DESTINATION UI
+   REF-23 — DESTINATION
 ========================================================= */
 
 destinationEl.addEventListener(
@@ -801,7 +713,7 @@ updateDestination();
 
 
 /* =========================================================
-   REF-23 — NORMALIZE TEXT
+   REF-24 — NORMALIZE TEXT
 ========================================================= */
 
 function normalizeText(text) {
@@ -814,27 +726,15 @@ function normalizeText(text) {
 
 
 /* =========================================================
-   REF-24 — SMART TEXT MERGE
+   REF-25 — OVERLAP MERGE
 
-   Prevents repeated words across Chrome session restarts.
-
-   Example:
-
-   Existing:
-   "Alexander sent his ambassador"
-
-   New:
-   "his ambassador to India"
-
-   Result:
-   "Alexander sent his ambassador to India"
+   Used only between confirmed chunks.
 ========================================================= */
 
-function mergeWithOverlap(base, addition) {
+function mergeConfirmedText(base, addition) {
 
   base =
     normalizeText(base);
-
 
   addition =
     normalizeText(addition);
@@ -850,21 +750,8 @@ function mergeWithOverlap(base, addition) {
   }
 
 
-  /*
-    Exact duplicate
-  */
-
-  if (base === addition) {
-    return base;
-  }
-
-
-  /*
-    Entire new phrase already contained
-    at the end.
-  */
-
   if (
+    base === addition ||
     base.endsWith(addition)
   ) {
 
@@ -876,18 +763,13 @@ function mergeWithOverlap(base, addition) {
   const baseWords =
     base.split(" ");
 
-
   const addWords =
     addition.split(" ");
 
 
-  /*
-    Compare up to 20 words at the boundary.
-  */
-
   const maxOverlap =
     Math.min(
-      20,
+      18,
       baseWords.length,
       addWords.length
     );
@@ -895,12 +777,12 @@ function mergeWithOverlap(base, addition) {
 
   for (
     let size = maxOverlap;
-    size >= 1;
+    size >= 2;
     size--
   ) {
 
 
-    const endOfBase =
+    const left =
       baseWords
         .slice(
           baseWords.length - size
@@ -909,19 +791,15 @@ function mergeWithOverlap(base, addition) {
         .toLowerCase();
 
 
-    const startOfAddition =
+    const right =
       addWords
-        .slice(
-          0,
-          size
-        )
+        .slice(0, size)
         .join(" ")
         .toLowerCase();
 
 
     if (
-      endOfBase ===
-      startOfAddition
+      left === right
     ) {
 
 
@@ -947,11 +825,6 @@ function mergeWithOverlap(base, addition) {
   }
 
 
-  /*
-    No overlap.
-    This is genuinely new speech.
-  */
-
   return normalizeText(
     base +
     " " +
@@ -962,7 +835,7 @@ function mergeWithOverlap(base, addition) {
 
 
 /* =========================================================
-   REF-25 — CURRENT FULL TRANSCRIPT
+   REF-26 — CURRENT FULL TEXT
 ========================================================= */
 
 function getCurrentTranscript(
@@ -970,12 +843,8 @@ function getCurrentTranscript(
 ) {
 
   let text =
-    committedText;
-
-
-  text =
-    mergeWithOverlap(
-      text,
+    mergeConfirmedText(
+      committedText,
       sessionFinalText
     );
 
@@ -987,8 +856,9 @@ function getCurrentTranscript(
 
 
     text =
-      mergeWithOverlap(
-        text,
+      normalizeText(
+        text +
+        (text ? " " : "") +
         sessionInterimText
       );
 
@@ -1003,7 +873,7 @@ function getCurrentTranscript(
 
 
 /* =========================================================
-   REF-26 — UPDATE TEXTBOX DISPLAY
+   REF-27 — DISPLAY
 ========================================================= */
 
 function refreshTranscriptDisplay(
@@ -1012,8 +882,9 @@ function refreshTranscriptDisplay(
 
 
   /*
-    While frozen, recognition continues
-    but textbox stays unchanged.
+    Frozen view means:
+    microphone keeps working,
+    textbox stays untouched.
   */
 
   if (
@@ -1031,11 +902,6 @@ function refreshTranscriptDisplay(
     getCurrentTranscript(true);
 
 
-  /*
-    Follow newest words only while
-    LIVE VIEW is active.
-  */
-
   if (
     listening &&
     liveView
@@ -1051,17 +917,11 @@ function refreshTranscriptDisplay(
 
 
 /* =========================================================
-   REF-27 — TEXTBOX LIVE / FREEZE MODE
+   REF-28 — TEXTBOX MODE
 ========================================================= */
 
 function updateTextboxMode() {
 
-
-  /*
-    NOT LISTENING:
-
-    Textbox is normal editable text.
-  */
 
   if (!listening) {
 
@@ -1071,16 +931,8 @@ function updateTextboxMode() {
 
 
     heardEl.classList.remove(
-      "listeningLock"
-    );
-
-
-    heardEl.classList.remove(
-      "liveView"
-    );
-
-
-    heardEl.classList.remove(
+      "listeningLock",
+      "liveView",
       "frozenView"
     );
 
@@ -1091,9 +943,8 @@ function updateTextboxMode() {
 
 
   /*
-    LISTENING:
-
-    Disable editing/selection.
+    While listening:
+    force readonly to block Android keyboard.
   */
 
   heardEl.readOnly =
@@ -1137,12 +988,14 @@ function updateTextboxMode() {
 
 
 /* =========================================================
-   REF-28 — TAP TEXTBOX TO LIVE / FREEZE
+   REF-29 — BLOCK MOBILE KEYBOARD WHILE LISTENING
+
+   Android may attempt focus before click.
+   Intercept pointer/touch first.
 ========================================================= */
 
 heardEl.addEventListener(
-  "click",
-
+  "pointerdown",
   function(event) {
 
 
@@ -1151,12 +1004,51 @@ heardEl.addEventListener(
     }
 
 
-    /*
-      Text selection is disabled while listening.
+    event.preventDefault();
 
-      A tap now means:
-      LIVE <-> FREEZE
-    */
+
+    heardEl.blur();
+
+  }
+);
+
+
+heardEl.addEventListener(
+  "touchstart",
+  function(event) {
+
+
+    if (!listening) {
+      return;
+    }
+
+
+    event.preventDefault();
+
+
+    heardEl.blur();
+
+  },
+
+  {
+    passive: false
+  }
+);
+
+
+/* =========================================================
+   REF-30 — TAP TEXTBOX: LIVE / FREEZE
+========================================================= */
+
+heardEl.addEventListener(
+  "click",
+  function(event) {
+
+
+    if (!listening) {
+      return;
+    }
+
 
     event.preventDefault();
 
@@ -1173,11 +1065,6 @@ heardEl.addEventListener(
 
     if (liveView) {
 
-
-      /*
-        Immediately catch up with everything
-        recognized while display was frozen.
-      */
 
       refreshTranscriptDisplay(true);
 
@@ -1204,23 +1091,20 @@ heardEl.addEventListener(
 
 
 /* =========================================================
-   REF-29 — BUILD CURRENT CHROME SESSION TEXT
+   REF-31 — REBUILD CURRENT CHROME SESSION
 
-   IMPORTANT RELIABILITY CHANGE:
+   IMPORTANT:
 
-   Instead of incrementally appending each event,
-   rebuild the complete current Chrome session
-   from event.results every time.
+   We rebuild using event.results each time.
 
-   This prevents progressive-result repetition
-   and avoids dropping revised phrases.
+   No progressive append logic.
 ========================================================= */
 
-function rebuildCurrentSession(results) {
+function rebuildRecognitionSession(results) {
 
-  let finals = [];
+  const finalParts = [];
 
-  let interim = [];
+  const interimParts = [];
 
 
   for (
@@ -1260,84 +1144,69 @@ function rebuildCurrentSession(results) {
     ) {
 
 
-      finals.push(text);
+      finalParts.push(
+        text
+      );
 
     }
 
     else {
 
 
-      interim.push(text);
+      interimParts.push(
+        text
+      );
 
     }
 
   }
 
 
-  /*
-    Completely REPLACE current session values.
-
-    Do not repeatedly append Chrome's
-    changing interim hypotheses.
-  */
-
   sessionFinalText =
     normalizeText(
-      finals.join(" ")
+      finalParts.join(" ")
     );
 
 
   sessionInterimText =
     normalizeText(
-      interim.join(" ")
+      interimParts.join(" ")
     );
 
 }
 
 
 /* =========================================================
-   REF-30 — COMMIT CURRENT SESSION
+   REF-32 — COMMIT CONFIRMED SPEECH ONLY
 
-   Used when Chrome ends recognition.
+   Critical change:
 
-   We preserve BOTH:
-   confirmed final speech
-   and any last interim phrase.
+   Interim text is NOT committed during
+   automatic recognition restart.
 
-   This favors NOT LOSING WORDS.
+   This avoids:
+   "behind"
+   "behind"
+   "behind closed doors"
 ========================================================= */
 
-function commitCurrentSession(
-  includeInterim = true
-) {
-
-
-  let sessionText =
-    sessionFinalText;
+function commitConfirmedSession() {
 
 
   if (
-    includeInterim &&
-    sessionInterimText
+    sessionFinalText
   ) {
 
 
-    sessionText =
-      mergeWithOverlap(
-        sessionText,
-        sessionInterimText
+    committedText =
+      mergeConfirmedText(
+        committedText,
+        sessionFinalText
       );
 
   }
 
 
-  committedText =
-    mergeWithOverlap(
-      committedText,
-      sessionText
-    );
-
-
   sessionFinalText =
     "";
 
@@ -1349,7 +1218,7 @@ function commitCurrentSession(
 
 
 /* =========================================================
-   REF-31 — CREATE SPEECH RECOGNIZER
+   REF-33 — CREATE RECOGNIZER
 ========================================================= */
 
 function createRecognizer() {
@@ -1381,19 +1250,9 @@ function createRecognizer() {
     languageEl.value;
 
 
-  /*
-    Let Chrome keep recognition active
-    as long as it supports.
-  */
-
   recognition.continuous =
     true;
 
-
-  /*
-    We keep interim enabled for live viewing,
-    but interim is NOT repeatedly appended.
-  */
 
   recognition.interimResults =
     true;
@@ -1404,7 +1263,7 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-32 — RECOGNITION START
+   REF-34 — STARTED
 ========================================================= */
 
   recognition.onstart =
@@ -1414,63 +1273,34 @@ function createRecognizer() {
       recognitionRunning =
         true;
 
-
-      if (
-        listening &&
-        liveView
-      ) {
-
-
-        statusEl.textContent =
-          "LISTENING — LIVE VIEW";
-
-      }
-
-    };
+  };
 
 
 /* =========================================================
-   REF-33 — RECOGNITION RESULT
+   REF-35 — RESULT
 ========================================================= */
 
   recognition.onresult =
     function(event) {
 
 
-      /*
-        Rebuild entire current Chrome
-        recognition session.
-
-        This is the key reliability change.
-      */
-
-      rebuildCurrentSession(
+      rebuildRecognitionSession(
         event.results
       );
 
 
-      /*
-        Recognition continues even if
-        textbox display is frozen.
-      */
-
       refreshTranscriptDisplay();
 
-    };
+  };
 
 
 /* =========================================================
-   REF-34 — RECOGNITION ERROR
+   REF-36 — ERROR
 ========================================================= */
 
   recognition.onerror =
     function(event) {
 
-
-      /*
-        Normal manual STOP may generate
-        aborted error.
-      */
 
       if (
         event.error === "aborted" &&
@@ -1483,10 +1313,7 @@ function createRecognizer() {
 
 
       /*
-        no-speech is not fatal.
-
-        Chrome will normally end and
-        we restart quickly.
+        no-speech is not treated as fatal.
       */
 
       if (
@@ -1510,12 +1337,12 @@ function createRecognizer() {
       ) {
 
 
-        listening =
-          false;
-
-
         manualStop =
           true;
+
+
+        listening =
+          false;
 
 
         recognitionRunning =
@@ -1529,17 +1356,18 @@ function createRecognizer() {
 
       }
 
-    };
+  };
 
 
 /* =========================================================
-   REF-35 — RECOGNITION ENDED
+   REF-37 — END
 
-   Critical reliability behavior:
+   Efficiency/reliability rules:
 
-   1. Preserve current session.
-   2. If user did NOT stop, restart quickly.
-   3. Only 60ms restart gap.
+   - commit FINAL only
+   - discard interim on automatic end
+   - quick restart
+   - no overlapping recognition instances
 ========================================================= */
 
   recognition.onend =
@@ -1551,15 +1379,18 @@ function createRecognizer() {
 
 
       /*
-        Preserve everything Chrome heard
-        before this recognition session ended.
+        Save confirmed speech.
+        Do NOT preserve interim here.
       */
 
-      commitCurrentSession(true);
+      commitConfirmedSession();
+
+
+      refreshTranscriptDisplay();
 
 
       /*
-        USER PRESSED STOP
+        USER STOPPED
       */
 
       if (
@@ -1577,10 +1408,8 @@ function createRecognizer() {
 
 
       /*
-        CHROME STOPPED AUTOMATICALLY.
-
-        Restart quickly to reduce the
-        dead gap where words can be missed.
+        Chrome ended naturally.
+        Restart quickly.
       */
 
       setTimeout(
@@ -1590,7 +1419,8 @@ function createRecognizer() {
 
           if (
             !listening ||
-            manualStop
+            manualStop ||
+            recognitionRunning
           ) {
 
             return;
@@ -1602,7 +1432,7 @@ function createRecognizer() {
 
         },
 
-        60
+        40
 
       );
 
@@ -1615,22 +1445,14 @@ function createRecognizer() {
 
 
 /* =========================================================
-   REF-36 — START RECOGNITION SESSION
+   REF-38 — START RECOGNITION SESSION
 ========================================================= */
 
 function startRecognitionSession() {
 
 
   if (
-    !listening
-  ) {
-
-    return;
-
-  }
-
-
-  if (
+    !listening ||
     recognitionRunning
   ) {
 
@@ -1681,7 +1503,7 @@ function startRecognitionSession() {
 
 
 /* =========================================================
-   REF-37 — MIC BUTTON DISPLAY
+   REF-39 — MIC BUTTON UI
 ========================================================= */
 
 function updateMicButton() {
@@ -1750,33 +1572,23 @@ function updateMicButton() {
 
 
 /* =========================================================
-   REF-38 — MIC BUTTON START / STOP
+   REF-40 — MIC START / STOP
 ========================================================= */
 
 micBtn.addEventListener(
   "click",
-
   function() {
 
 
     /* -----------------------------------------------------
-       START LISTENING
+       START
     ----------------------------------------------------- */
 
     if (!listening) {
 
 
-      /*
-        Speaker playback must stop before
-        opening microphone.
-      */
-
       stopReading();
 
-
-      /*
-        Fresh dictation session.
-      */
 
       committedText =
         "";
@@ -1801,11 +1613,6 @@ micBtn.addEventListener(
       resultEl.textContent =
         "";
 
-
-      /*
-        LIVE VIEW defaults ON every time
-        dictation starts.
-      */
 
       liveView =
         true;
@@ -1834,13 +1641,12 @@ micBtn.addEventListener(
 
 
     /* -----------------------------------------------------
-       STOP LISTENING
+       STOP
     ----------------------------------------------------- */
 
 
     /*
-      Immediately tell all logic:
-      USER HAS STOPPED.
+      Immediately block all restart logic.
     */
 
     manualStop =
@@ -1852,31 +1658,44 @@ micBtn.addEventListener(
 
 
     /*
-      Preserve everything currently available
-      BEFORE shutting recognition down.
+      Preserve only confirmed results
+      available at this moment.
     */
 
-    commitCurrentSession(true);
+    if (
+      sessionFinalText
+    ) {
+
+
+      committedText =
+        mergeConfirmedText(
+          committedText,
+          sessionFinalText
+        );
+
+    }
 
 
     /*
-      Button changes RED -> BLUE immediately.
+      We intentionally do NOT append
+      interim text here.
+
+      It prevents progressive repetition.
     */
+
+    sessionFinalText =
+      "";
+
+
+    sessionInterimText =
+      "";
+
 
     updateMicButton();
 
 
-    /*
-      Re-enable textbox editing / selection.
-    */
-
     updateTextboxMode();
 
-
-    /*
-      Force full latest transcript into textbox,
-      even if LIVE VIEW was frozen.
-    */
 
     refreshTranscriptDisplay(true);
 
@@ -1913,19 +1732,13 @@ micBtn.addEventListener(
 
 
 /* =========================================================
-   REF-39 — MANUAL TEXT EDITING
+   REF-41 — MANUAL TEXT EDIT
 ========================================================= */
 
 heardEl.addEventListener(
   "input",
-
   function() {
 
-
-    /*
-      Editing is available only while
-      microphone is stopped.
-    */
 
     if (!listening) {
 
@@ -1948,12 +1761,11 @@ heardEl.addEventListener(
 
 
 /* =========================================================
-   REF-40 — CLEAR
+   REF-42 — CLEAR
 ========================================================= */
 
 clearBtn.addEventListener(
   "click",
-
   function() {
 
 
@@ -2004,10 +1816,7 @@ clearBtn.addEventListener(
 
 
 /* =========================================================
-   REF-41 — LOAD DEVICE TTS VOICES
-
-   READ side only.
-   Does NOT touch microphone.
+   REF-43 — LOAD DEVICE TTS VOICES
 ========================================================= */
 
 function loadVoices() {
@@ -2067,11 +1876,6 @@ function loadVoices() {
       }
     );
 
-
-  /*
-    If no matching language voices,
-    show all available voices.
-  */
 
   if (
     matchingVoices.length === 0
@@ -2178,7 +1982,7 @@ function loadVoices() {
 
 
 /* =========================================================
-   REF-42 — INITIAL VOICE LOAD
+   REF-44 — VOICE LOAD
 ========================================================= */
 
 loadVoices();
@@ -2203,7 +2007,7 @@ languageEl.addEventListener(
 
 
 /* =========================================================
-   REF-43 — SELECTED VOICE
+   REF-45 — SELECTED VOICE
 ========================================================= */
 
 function getSelectedVoice() {
@@ -2232,12 +2036,11 @@ function getSelectedVoice() {
 
 
 /* =========================================================
-   REF-44 — TEST VOICE
+   REF-46 — TEST VOICE
 ========================================================= */
 
 testVoiceBtn.addEventListener(
   "click",
-
   function() {
 
 
@@ -2358,7 +2161,7 @@ testVoiceBtn.addEventListener(
 
 
 /* =========================================================
-   REF-45 — READ BUTTON DISPLAY
+   REF-47 — READ BUTTON UI
 ========================================================= */
 
 function updateReadButton() {
@@ -2402,7 +2205,7 @@ function updateReadButton() {
 
 
 /* =========================================================
-   REF-46 — STOP READING
+   REF-48 — STOP READING
 ========================================================= */
 
 function stopReading() {
@@ -2429,18 +2232,13 @@ function stopReading() {
 
 
 /* =========================================================
-   REF-47 — READ BUTTON
+   REF-49 — READ
 ========================================================= */
 
 readBtn.addEventListener(
   "click",
-
   function() {
 
-
-    /*
-      STOP READING
-    */
 
     if (reading) {
 
@@ -2458,10 +2256,6 @@ readBtn.addEventListener(
 
     }
 
-
-    /*
-      Microphone always has priority.
-    */
 
     if (listening) {
 
@@ -2571,7 +2365,7 @@ readBtn.addEventListener(
         statusEl.textContent =
           "DICTATION READY";
 
-      };
+    };
 
 
     utterance.onerror =
@@ -2586,7 +2380,8 @@ readBtn.addEventListener(
 
 
         if (
-          event.error !== "canceled"
+          event.error !==
+          "canceled"
         ) {
 
 
@@ -2596,7 +2391,7 @@ readBtn.addEventListener(
 
         }
 
-      };
+    };
 
 
     window.speechSynthesis.speak(
@@ -2608,12 +2403,11 @@ readBtn.addEventListener(
 
 
 /* =========================================================
-   REF-48 — SAVE BUTTON
+   REF-50 — SAVE BUTTON
 ========================================================= */
 
 saveBtn.addEventListener(
   "click",
-
   function() {
 
 
@@ -2639,7 +2433,7 @@ saveBtn.addEventListener(
 
 
 /* =========================================================
-   REF-49 — SAVE DICTATION
+   REF-51 — SAVE
 ========================================================= */
 
 function saveDictation() {
@@ -2672,9 +2466,7 @@ function saveDictation() {
   ) {
 
 
-    saveLocal(
-      text
-    );
+    saveLocal(text);
 
 
     return;
@@ -2682,15 +2474,13 @@ function saveDictation() {
   }
 
 
-  saveGoogleDrive(
-    text
-  );
+  saveGoogleDrive(text);
 
 }
 
 
 /* =========================================================
-   REF-50 — LOCAL TXT
+   REF-52 — LOCAL TXT
 ========================================================= */
 
 function saveLocal(text) {
@@ -2757,9 +2547,7 @@ function saveLocal(text) {
 
 
   document.body
-    .appendChild(
-      a
-    );
+    .appendChild(a);
 
 
   a.click();
@@ -2795,7 +2583,7 @@ function saveLocal(text) {
 
 
 /* =========================================================
-   REF-51 — GOOGLE DRIVE SAVE
+   REF-53 — GOOGLE DRIVE
 ========================================================= */
 
 function saveGoogleDrive(text) {
@@ -2848,6 +2636,7 @@ function saveGoogleDrive(text) {
 
   .then(
     function(response) {
+
 
       return response.json();
 
@@ -2917,7 +2706,7 @@ function saveGoogleDrive(text) {
 
 
 /* =========================================================
-   REF-52 — INITIAL STATE
+   REF-54 — INITIAL STATE
 ========================================================= */
 
 updateMicButton();
