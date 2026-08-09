@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="utf-8">
 
 <meta
@@ -15,19 +13,14 @@
 <style>
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Arial,
-    sans-serif;
-
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   max-width: 800px;
   margin: 20px auto;
   padding: 15px;
   text-align: center;
-  background: #f5f5f5;
+
+  background: #000;
+  color: #fff;
 }
 
 h1 {
@@ -60,7 +53,11 @@ input {
   max-width: 650px;
   margin: auto;
   padding: 15px;
-  background: white;
+
+  background: #111;
+  color: #fff;
+
+  border: 1px solid #333;
   border-radius: 12px;
 }
 
@@ -71,14 +68,19 @@ input {
   margin: 25px auto;
   border: none;
   border-radius: 50%;
-  background: #16a34a;
+
+  background: #0066ff;
+
   color: white;
   font-size: 82px;
   cursor: pointer;
+
+  box-shadow: 0 0 25px rgba(0,102,255,0.65);
 }
 
 #micBtn.listening {
   background: #dc2626;
+  box-shadow: 0 0 30px rgba(220,38,38,0.8);
 }
 
 #status {
@@ -87,17 +89,64 @@ input {
   margin: 20px;
 }
 
+/*
+  TEXT BOX
+
+  Changed from DIV to textarea so you can
+  manually edit the transcription before
+  reading or saving it.
+*/
+
 #heard {
-  min-height: 220px;
+  width: 100%;
+  min-height: 250px;
   padding: 20px;
-  background: white;
-  border: 2px solid #ccc;
+
+  background: #111;
+  color: #fff;
+
+  border: 2px solid #444;
   border-radius: 12px;
+
   font-size: 24px;
   line-height: 1.5;
   text-align: left;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.actionBtn {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 13px 20px;
+  border: 1px solid #aaa;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+}
+
+#clearBtn {
+  background: #fff;
+}
+
+#readBtn {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+#stopReadBtn {
+  background: #555;
+  color: white;
+  border-color: #555;
 }
 
 #result {
@@ -112,7 +161,6 @@ input {
 }
 
 </style>
-
 </head>
 
 
@@ -125,27 +173,52 @@ input {
 
 <div class="control">
 
-  <label>Language</label>
+<label>Dictation / Reading Language</label>
 
-  <select id="language">
+<select id="language">
 
-    <option value="gu-IN" selected>
-      🇮🇳 ગુજરાતી / Gujarati
-    </option>
+  <option value="gu-IN" selected>
+    🇮🇳 ગુજરાતી / Gujarati
+  </option>
 
-    <option value="hi-IN">
-      🇮🇳 Hindi / Hinglish
-    </option>
+  <option value="hi-IN">
+    🇮🇳 Hindi / Hinglish
+  </option>
 
-    <option value="en-IN">
-      🇮🇳 English (India)
-    </option>
+  <option value="en-IN">
+    🇮🇳 English (India)
+  </option>
 
-    <option value="en-US">
-      🇺🇸 English (US)
-    </option>
+  <option value="en-US">
+    🇺🇸 English (US)
+  </option>
 
-  </select>
+</select>
+
+</div>
+
+
+<!-- VOICE -->
+
+<div class="control">
+
+<label>Read Back Voice</label>
+
+<select id="voiceGender">
+
+  <option value="female">
+    👩 Female
+  </option>
+
+  <option value="male">
+    👨 Male
+  </option>
+
+</select>
+
+<div class="small">
+  Available voices depend on your phone/computer.
+</div>
 
 </div>
 
@@ -154,19 +227,19 @@ input {
 
 <div class="control">
 
-  <label>Save Destination</label>
+<label>Save Destination</label>
 
-  <select id="destination">
+<select id="destination">
 
-    <option value="drive">
-      Google Drive
-    </option>
+  <option value="drive">
+    Google Drive
+  </option>
 
-    <option value="local">
-      Local Device
-    </option>
+  <option value="local">
+    Local Device
+  </option>
 
-  </select>
+</select>
 
 </div>
 
@@ -175,61 +248,53 @@ input {
 
 <div class="control">
 
-  <label>File Name</label>
+<label>File Name</label>
 
-  <input
-    id="fileName"
-    value="Voice Dictation Transcripts"
-  >
+<input
+  id="fileName"
+  value="Voice Dictation Transcripts"
+>
 
 </div>
 
 
-<!-- GOOGLE DRIVE OPTIONS -->
+<!-- DRIVE OPTIONS -->
 
-<div
-  id="driveOptions"
-  class="control"
+<div id="driveOptions" class="control">
+
+<label>Google Drive Format</label>
+
+<select id="driveFormat">
+
+  <option value="gdoc">
+    Google Doc
+  </option>
+
+  <option value="txt">
+    TXT File
+  </option>
+
+</select>
+
+<br><br>
+
+<label>Google Drive Folder URL</label>
+
+<input
+  id="folder"
+  placeholder="Leave blank for My Drive"
 >
 
-  <label>Google Drive Format</label>
-
-  <select id="driveFormat">
-
-    <option value="gdoc">
-      Google Doc
-    </option>
-
-    <option value="txt">
-      TXT File
-    </option>
-
-  </select>
-
-
-  <br><br>
-
-
-  <label>Google Drive Folder URL</label>
-
-  <input
-    id="folder"
-    placeholder="Leave blank for My Drive"
-  >
-
-  <div class="small">
-    Paste Google Drive folder URL or folder ID.
-  </div>
+<div class="small">
+  Paste Google Drive folder URL or folder ID.
+</div>
 
 </div>
 
 
-<!-- MIC -->
+<!-- MICROPHONE -->
 
-<button
-  id="micBtn"
-  type="button"
->
+<button id="micBtn" type="button">
 🎤
 </button>
 
@@ -239,8 +304,42 @@ PRESS GREEN TO START
 </div>
 
 
-<div id="heard">
-—
+<!-- EDITABLE TRANSCRIPTION -->
+
+<textarea
+  id="heard"
+  placeholder="Your transcription will appear here..."
+></textarea>
+
+
+<!-- TEXT CONTROLS -->
+
+<div class="actionRow">
+
+<button
+  id="clearBtn"
+  class="actionBtn"
+  type="button"
+>
+🗑️ CLEAR
+</button>
+
+<button
+  id="readBtn"
+  class="actionBtn"
+  type="button"
+>
+🔊 READ
+</button>
+
+<button
+  id="stopReadBtn"
+  class="actionBtn"
+  type="button"
+>
+⏹ STOP READING
+</button>
+
 </div>
 
 
@@ -252,16 +351,16 @@ PRESS GREEN TO START
 <script>
 
 /*************************************************
- * APPS SCRIPT BACKEND
- *************************************************/
+ BACKEND
+*************************************************/
 
 const BACKEND_URL =
 "https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
 
 
 /*************************************************
- * ELEMENTS
- *************************************************/
+ ELEMENTS
+*************************************************/
 
 const micBtn =
   document.getElementById("micBtn");
@@ -278,6 +377,9 @@ const resultEl =
 const languageEl =
   document.getElementById("language");
 
+const voiceGenderEl =
+  document.getElementById("voiceGender");
+
 const destinationEl =
   document.getElementById("destination");
 
@@ -293,10 +395,19 @@ const fileNameEl =
 const folderEl =
   document.getElementById("folder");
 
+const clearBtn =
+  document.getElementById("clearBtn");
+
+const readBtn =
+  document.getElementById("readBtn");
+
+const stopReadBtn =
+  document.getElementById("stopReadBtn");
+
 
 /*************************************************
- * STATE
- *************************************************/
+ STATE
+*************************************************/
 
 let recognition = null;
 
@@ -306,29 +417,18 @@ let stopping = false;
 
 let saving = false;
 
-
-/*
-  Permanent confirmed transcript
-*/
 let finalText = "";
 
-
-/*
-  Current temporary Chrome hypothesis
-*/
 let interimText = "";
 
-
-/*
-  Used to prevent progressive duplicate
-  final phrases.
-*/
 let lastFinalRaw = "";
+
+let availableVoices = [];
 
 
 /*************************************************
- * DESTINATION DISPLAY
- *************************************************/
+ DESTINATION
+*************************************************/
 
 destinationEl.addEventListener(
   "change",
@@ -338,21 +438,10 @@ destinationEl.addEventListener(
 
 function updateDestination() {
 
-  if (
+  driveOptionsEl.style.display =
     destinationEl.value === "drive"
-  ) {
-
-    driveOptionsEl.style.display =
-      "block";
-
-  }
-
-  else {
-
-    driveOptionsEl.style.display =
-      "none";
-
-  }
+      ? "block"
+      : "none";
 
 }
 
@@ -361,8 +450,8 @@ updateDestination();
 
 
 /*************************************************
- * NORMALIZE TEXT
- *************************************************/
+ NORMALIZE
+*************************************************/
 
 function normalizeText(text) {
 
@@ -374,8 +463,8 @@ function normalizeText(text) {
 
 
 /*************************************************
- * ADD FINAL SPEECH WITHOUT REPETITION
- *************************************************/
+ FINAL SPEECH / DUPLICATE PROTECTION
+*************************************************/
 
 function commitFinalTranscript(newText) {
 
@@ -383,20 +472,11 @@ function commitFinalTranscript(newText) {
     normalizeText(newText);
 
 
-  if (!newText) {
-    return;
-  }
+  if (!newText) return;
 
 
   /*
-    EXACT DUPLICATE
-
-    Example:
-
-    "તો પછી એન્જોય કરો"
-    "તો પછી એન્જોય કરો"
-
-    Ignore second copy.
+    Exact duplicate
   */
 
   if (
@@ -409,21 +489,9 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    PROGRESSIVELY LONGER RESULT
+    Chrome expanded previous phrase.
 
-    Chrome may send:
-
-    તો પછી
-
-    then:
-
-    તો પછી એન્જોય કરો
-
-    then:
-
-    તો પછી એન્જોય કરો ને લાઇફ
-
-    We add ONLY the new ending.
+    Add ONLY the new ending.
   */
 
   if (
@@ -458,18 +526,8 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    Sometimes Chrome gives a shorter version
-    of the phrase it already finalized.
-
-    Example:
-
-    previous:
-    "તો પછી એન્જોય કરો ને લાઇફ"
-
-    new:
-    "તો પછી એન્જોય કરો"
-
-    Do NOT add it again.
+    Chrome returned shorter version
+    of previous phrase.
   */
 
   if (
@@ -483,9 +541,7 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    NEW PHRASE
-
-    Append normally.
+    New phrase
   */
 
   finalText +=
@@ -500,8 +556,8 @@ function commitFinalTranscript(newText) {
 
 
 /*************************************************
- * DISPLAY TRANSCRIPT
- *************************************************/
+ SHOW TRANSCRIPT
+*************************************************/
 
 function showTranscript() {
 
@@ -515,27 +571,22 @@ function showTranscript() {
 
   if (temp) {
 
-    if (display) {
-
-      display += " ";
-
-    }
-
-    display += temp;
+    display +=
+      (display ? " " : "") +
+      temp;
 
   }
 
 
-  heardEl.textContent =
-    display ||
-    "Listening...";
+  heardEl.value =
+    display;
 
 }
 
 
 /*************************************************
- * CREATE SPEECH RECOGNIZER
- *************************************************/
+ SPEECH RECOGNITION
+*************************************************/
 
 function createRecognizer() {
 
@@ -563,10 +614,6 @@ function createRecognizer() {
     languageEl.value;
 
 
-  /*
-    Long dictation
-  */
-
   recognition.continuous =
     true;
 
@@ -580,22 +627,15 @@ function createRecognizer() {
 
 
 /*************************************************
- * SPEECH RESULTS
- *************************************************/
+ RESULTS
+*************************************************/
 
   recognition.onresult =
     function(event) {
 
 
-      /*
-        IMPORTANT:
-
-        Rebuild temporary text every time.
-
-        Never permanently append interim text.
-      */
-
-      let currentInterim = "";
+      let currentInterim =
+        "";
 
 
       for (
@@ -632,10 +672,6 @@ function createRecognizer() {
         }
 
 
-        /****************************************
-         * FINAL RESULT
-         ****************************************/
-
         if (
           result.isFinal
         ) {
@@ -646,10 +682,6 @@ function createRecognizer() {
 
         }
 
-
-        /****************************************
-         * INTERIM RESULT
-         ****************************************/
 
         else {
 
@@ -671,12 +703,6 @@ function createRecognizer() {
       }
 
 
-      /*
-        REPLACE old interim.
-
-        Never append the old interim.
-      */
-
       interimText =
         currentInterim;
 
@@ -687,8 +713,8 @@ function createRecognizer() {
 
 
 /*************************************************
- * SPEECH ERROR
- *************************************************/
+ ERROR
+*************************************************/
 
   recognition.onerror =
     function(event) {
@@ -708,28 +734,24 @@ function createRecognizer() {
         "MIC ERROR: " +
         event.error;
 
-  };
+    };
 
 
 /*************************************************
- * SPEECH ENDED
- *************************************************/
+ RECOGNITION ENDED
+*************************************************/
 
   recognition.onend =
     function() {
 
 
+      interimText =
+        "";
+
+
       /*
-        Temporary result belongs only
-        to the recognition session.
+        User pressed RED
       */
-
-      interimText = "";
-
-
-      /****************************************
-       * USER PRESSED RED
-       ****************************************/
 
       if (
         stopping
@@ -750,7 +772,21 @@ function createRecognizer() {
         showTranscript();
 
 
-        saveDictation();
+        /*
+          We DO NOT automatically save here.
+
+          This gives you time to:
+          EDIT
+          READ
+          CLEAR
+          VERIFY
+
+          Then press SAVE using the button
+          created below.
+        */
+
+        statusEl.textContent =
+          "DICTATION READY";
 
 
         return;
@@ -758,11 +794,11 @@ function createRecognizer() {
       }
 
 
-      /****************************************
-       * CHROME AUTOMATICALLY ENDED
-       *
-       * Restart while keeping finalText.
-       ****************************************/
+      /*
+        Chrome automatically stopped.
+
+        Restart recognition.
+      */
 
       if (
         listening
@@ -774,25 +810,13 @@ function createRecognizer() {
           function() {
 
 
-            if (
-              !listening
-            ) {
-
+            if (!listening) {
               return;
-
             }
 
 
             try {
 
-
-              /*
-                New recognition session.
-
-                Reset comparison because
-                Chrome's new session starts
-                with new result indexes.
-              */
 
               lastFinalRaw =
                 "";
@@ -807,7 +831,6 @@ function createRecognizer() {
 
 
             catch(error) {
-
 
               console.log(
                 "Restart error:",
@@ -833,8 +856,8 @@ function createRecognizer() {
 
 
 /*************************************************
- * BUTTON DISPLAY
- *************************************************/
+ MIC BUTTON DISPLAY
+*************************************************/
 
 function updateButton() {
 
@@ -856,23 +879,7 @@ function updateButton() {
       true;
 
 
-    destinationEl.disabled =
-      true;
-
-
-    driveFormatEl.disabled =
-      true;
-
-
-    fileNameEl.disabled =
-      true;
-
-
-    folderEl.disabled =
-      true;
-
   }
-
 
   else {
 
@@ -882,27 +889,7 @@ function updateButton() {
     );
 
 
-    statusEl.textContent =
-      "PRESS GREEN TO START";
-
-
     languageEl.disabled =
-      false;
-
-
-    destinationEl.disabled =
-      false;
-
-
-    driveFormatEl.disabled =
-      false;
-
-
-    fileNameEl.disabled =
-      false;
-
-
-    folderEl.disabled =
       false;
 
   }
@@ -911,19 +898,17 @@ function updateButton() {
 
 
 /*************************************************
- * MIC BUTTON
- *************************************************/
+ MIC BUTTON
+*************************************************/
 
 micBtn.addEventListener(
-
   "click",
-
   function() {
 
 
-    /********************************************
-     * GREEN → START
-     ********************************************/
+    /*
+      START
+    */
 
     if (
       !listening
@@ -931,8 +916,11 @@ micBtn.addEventListener(
 
 
       /*
-        Completely fresh dictation
+        Stop read-back if currently speaking.
       */
+
+      window.speechSynthesis.cancel();
+
 
       finalText =
         "";
@@ -950,8 +938,8 @@ micBtn.addEventListener(
         false;
 
 
-      heardEl.textContent =
-        "Listening...";
+      heardEl.value =
+        "";
 
 
       resultEl.textContent =
@@ -997,9 +985,9 @@ micBtn.addEventListener(
     }
 
 
-    /********************************************
-     * RED → STOP
-     ********************************************/
+    /*
+      STOP
+    */
 
     stopping =
       true;
@@ -1010,7 +998,6 @@ micBtn.addEventListener(
 
 
     try {
-
 
       recognition.stop();
 
@@ -1031,20 +1018,475 @@ micBtn.addEventListener(
       updateButton();
 
 
-      saveDictation();
+      statusEl.textContent =
+        "DICTATION READY";
+
+    }
+
+  }
+);
+
+
+/*************************************************
+ CLEAR BUTTON
+*************************************************/
+
+clearBtn.addEventListener(
+  "click",
+  function() {
+
+
+    /*
+      Don't clear while recording.
+    */
+
+    if (
+      listening
+    ) {
+
+      resultEl.textContent =
+        "Stop dictation before clearing.";
+
+      return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    finalText =
+      "";
+
+
+    interimText =
+      "";
+
+
+    lastFinalRaw =
+      "";
+
+
+    heardEl.value =
+      "";
+
+
+    resultEl.textContent =
+      "Text cleared";
+
+
+    statusEl.textContent =
+      "PRESS GREEN TO START";
+
+  }
+);
+
+
+/*************************************************
+ KEEP FINAL TEXT SYNCED WITH MANUAL EDITS
+*************************************************/
+
+heardEl.addEventListener(
+  "input",
+  function() {
+
+    if (
+      !listening
+    ) {
+
+      finalText =
+        heardEl.value;
+
+      lastFinalRaw =
+        "";
+
+    }
+
+  }
+);
+
+
+/*************************************************
+ TEXT TO SPEECH VOICES
+*************************************************/
+
+function loadVoices() {
+
+  availableVoices =
+    window.speechSynthesis
+      .getVoices();
+
+}
+
+
+loadVoices();
+
+
+if (
+  "speechSynthesis" in window
+) {
+
+  window.speechSynthesis.onvoiceschanged =
+    loadVoices;
+
+}
+
+
+/*************************************************
+ FIND BEST VOICE
+*************************************************/
+
+function findVoice(
+  language,
+  gender
+) {
+
+  const lang =
+    language.toLowerCase();
+
+
+  const baseLang =
+    lang.split("-")[0];
+
+
+  /*
+    First find voices matching
+    selected language.
+  */
+
+  let matches =
+    availableVoices.filter(
+      voice => {
+
+        const vLang =
+          String(
+            voice.lang || ""
+          ).toLowerCase();
+
+
+        return (
+          vLang === lang ||
+          vLang.startsWith(
+            baseLang + "-"
+          )
+        );
+
+      }
+    );
+
+
+  /*
+    If device has no exact voice,
+    let browser choose default.
+  */
+
+  if (
+    matches.length === 0
+  ) {
+
+    return null;
+
+  }
+
+
+  /*
+    Browser voice objects unfortunately
+    don't provide a standard gender field.
+
+    These names help identify many common
+    Microsoft/Google/Android voices.
+  */
+
+  const femaleHints = [
+    "female",
+    "woman",
+    "zira",
+    "heera",
+    "kalpana",
+    "swara",
+    "google हिन्दी",
+    "google ગુજરાતી"
+  ];
+
+
+  const maleHints = [
+    "male",
+    "man",
+    "david",
+    "ravi",
+    "hemant"
+  ];
+
+
+  const hints =
+    gender === "male"
+      ? maleHints
+      : femaleHints;
+
+
+  for (
+    const voice of matches
+  ) {
+
+
+    const name =
+      String(
+        voice.name || ""
+      ).toLowerCase();
+
+
+    if (
+      hints.some(
+        hint =>
+          name.includes(
+            hint.toLowerCase()
+          )
+      )
+    ) {
+
+      return voice;
 
     }
 
   }
 
+
+  /*
+    No identifiable gender match.
+
+    Use first compatible voice.
+  */
+
+  return matches[0];
+
+}
+
+
+/*************************************************
+ READ BUTTON
+*************************************************/
+
+readBtn.addEventListener(
+  "click",
+  function() {
+
+
+    if (
+      listening
+    ) {
+
+      resultEl.textContent =
+        "Stop dictation before reading.";
+
+      return;
+
+    }
+
+
+    const text =
+      heardEl.value.trim();
+
+
+    if (
+      !text
+    ) {
+
+      resultEl.textContent =
+        "Nothing to read.";
+
+      return;
+
+    }
+
+
+    if (
+      !(
+        "speechSynthesis"
+        in window
+      )
+    ) {
+
+      resultEl.textContent =
+        "Text-to-speech is not supported.";
+
+      return;
+
+    }
+
+
+    /*
+      Stop previous reading.
+    */
+
+    window.speechSynthesis.cancel();
+
+
+    loadVoices();
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+
+    utterance.lang =
+      languageEl.value;
+
+
+    const selectedVoice =
+      findVoice(
+        languageEl.value,
+        voiceGenderEl.value
+      );
+
+
+    if (
+      selectedVoice
+    ) {
+
+      utterance.voice =
+        selectedVoice;
+
+    }
+
+
+    /*
+      Natural defaults
+    */
+
+    utterance.rate =
+      1.0;
+
+
+    utterance.pitch =
+      1.0;
+
+
+    utterance.volume =
+      1.0;
+
+
+    utterance.onstart =
+      function() {
+
+        statusEl.textContent =
+          "🔊 READING...";
+
+    };
+
+
+    utterance.onend =
+      function() {
+
+        statusEl.textContent =
+          "DICTATION READY";
+
+    };
+
+
+    utterance.onerror =
+      function(event) {
+
+        resultEl.textContent =
+          "READ ERROR: " +
+          event.error;
+
+    };
+
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+
+  }
 );
 
 
 /*************************************************
- * SAVE DICTATION
- *************************************************/
+ STOP READING
+*************************************************/
+
+stopReadBtn.addEventListener(
+  "click",
+  function() {
+
+
+    window.speechSynthesis.cancel();
+
+
+    statusEl.textContent =
+      heardEl.value.trim()
+        ? "DICTATION READY"
+        : "PRESS GREEN TO START";
+
+  }
+);
+
+
+/*************************************************
+ ADD SAVE BUTTON
+*************************************************/
+
+const saveBtn =
+  document.createElement(
+    "button"
+  );
+
+
+saveBtn.type =
+  "button";
+
+
+saveBtn.className =
+  "actionBtn";
+
+
+saveBtn.textContent =
+  "💾 SAVE";
+
+
+document
+  .querySelector(".actionRow")
+  .appendChild(saveBtn);
+
+
+/*************************************************
+ SAVE BUTTON
+*************************************************/
+
+saveBtn.addEventListener(
+  "click",
+  function() {
+
+
+    if (
+      listening
+    ) {
+
+      resultEl.textContent =
+        "Stop dictation before saving.";
+
+      return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    saveDictation();
+
+  }
+);
+
+
+/*************************************************
+ SAVE DICTATION
+*************************************************/
 
 function saveDictation() {
+
 
   if (
     saving
@@ -1056,60 +1498,43 @@ function saveDictation() {
 
 
   /*
-    CRITICAL:
+    IMPORTANT:
 
-    SAVE ONLY CONFIRMED FINAL TEXT.
+    Save what is ACTUALLY in the textbox.
 
-    interimText is NEVER added here.
+    This means you can manually correct
+    words before saving.
   */
 
   const text =
-    normalizeText(
-      finalText
-    );
+    heardEl.value.trim();
 
 
   if (
     !text
   ) {
 
-
     resultEl.textContent =
-      "Nothing heard";
-
+      "Nothing to save.";
 
     return;
 
   }
 
-
-  heardEl.textContent =
-    text;
-
-
-  /*********************************************
-   * LOCAL DEVICE
-   *********************************************/
 
   if (
     destinationEl.value ===
     "local"
   ) {
 
-
     saveLocal(
       text
     );
-
 
     return;
 
   }
 
-
-  /*********************************************
-   * GOOGLE DRIVE
-   *********************************************/
 
   saveGoogleDrive(
     text
@@ -1119,8 +1544,8 @@ function saveDictation() {
 
 
 /*************************************************
- * SAVE LOCAL TXT
- *************************************************/
+ LOCAL TXT
+*************************************************/
 
 function saveLocal(text) {
 
@@ -1142,12 +1567,9 @@ function saveLocal(text) {
   }
 
 
-  const now =
-    new Date();
-
-
   const timestamp =
-    now.toLocaleString();
+    new Date()
+      .toLocaleString();
 
 
   const contents =
@@ -1200,7 +1622,6 @@ function saveLocal(text) {
 
 
   setTimeout(
-
     function() {
 
       URL.revokeObjectURL(
@@ -1208,9 +1629,7 @@ function saveLocal(text) {
       );
 
     },
-
     1000
-
   );
 
 
@@ -1226,8 +1645,8 @@ function saveLocal(text) {
 
 
 /*************************************************
- * SAVE GOOGLE DRIVE
- *************************************************/
+ GOOGLE DRIVE SAVE
+*************************************************/
 
 function saveGoogleDrive(text) {
 
@@ -1271,13 +1690,8 @@ function saveGoogleDrive(text) {
   fetch(
     BACKEND_URL,
     {
-
-      method:
-        "POST",
-
-      body:
-        data
-
+      method: "POST",
+      body: data
     }
   )
 
@@ -1351,5 +1765,4 @@ function saveGoogleDrive(text) {
 </script>
 
 </body>
-
 </html>
