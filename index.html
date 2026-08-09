@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="utf-8">
 
@@ -12,159 +13,193 @@
 
 <style>
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   max-width: 800px;
-  margin: 20px auto;
-  padding: 15px;
-  text-align: center;
-
+  margin: 0 auto;
+  padding: 14px;
   background: #000;
   color: #fff;
+  text-align: center;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 28px;
+  margin: 10px 0 18px;
 }
 
 .control {
-  margin: 14px 0;
+  margin: 12px 0;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
-  font-size: 17px;
+  margin-bottom: 6px;
+  font-size: 16px;
   font-weight: bold;
 }
 
 select,
 input {
   width: 100%;
-  max-width: 600px;
   padding: 12px;
-  font-size: 18px;
-  border: 1px solid #aaa;
-  border-radius: 8px;
-  box-sizing: border-box;
+  font-size: 17px;
+  color: #fff;
+  background: #181818;
+  border: 1px solid #444;
+  border-radius: 12px;
 }
 
 #driveOptions {
-  max-width: 650px;
-  margin: auto;
-  padding: 15px;
-
+  padding: 14px;
   background: #111;
+  border: 1px solid #333;
+  border-radius: 14px;
+}
+
+
+/* ================================
+   LARGE MAIN BUTTONS
+================================ */
+
+.mainButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  width: 100%;
+  height: 68px;
+
+  margin: 15px 0;
+
+  border: none;
+  border-radius: 16px;
+
   color: #fff;
 
-  border: 1px solid #333;
-  border-radius: 12px;
-}
+  font-size: 23px;
+  font-weight: 700;
 
-#micBtn {
-  display: block;
-  width: 210px;
-  height: 210px;
-  margin: 25px auto;
-  border: none;
-  border-radius: 50%;
-
-  background: #0066ff;
-
-  color: white;
-  font-size: 82px;
   cursor: pointer;
 
-  box-shadow: 0 0 25px rgba(0,102,255,0.65);
+  touch-action: manipulation;
 }
 
-#micBtn.listening {
-  background: #dc2626;
-  box-shadow: 0 0 30px rgba(220,38,38,0.8);
+
+/* BLUE READY STATE */
+
+#micBtn,
+#readBtn {
+  background: #0866ff;
 }
+
+
+/* RED ACTIVE STATE */
+
+#micBtn.listening,
+#readBtn.reading {
+  background: #d71920;
+}
+
+
+/* ICON */
+
+.buttonIcon {
+  font-size: 28px;
+}
+
+
+/* STATUS */
 
 #status {
-  font-size: 24px;
+  margin: 12px 0;
+  font-size: 19px;
   font-weight: bold;
-  margin: 20px;
 }
 
-/*
-  TEXT BOX
 
-  Changed from DIV to textarea so you can
-  manually edit the transcription before
-  reading or saving it.
-*/
+/* TRANSCRIPT */
 
 #heard {
   width: 100%;
-  min-height: 250px;
-  padding: 20px;
+  min-height: 260px;
 
-  background: #111;
+  padding: 16px;
+
   color: #fff;
+  background: #101010;
 
-  border: 2px solid #444;
-  border-radius: 12px;
+  border: 2px solid #333;
+  border-radius: 14px;
 
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.5;
-  text-align: left;
-  box-sizing: border-box;
+
   resize: vertical;
 }
 
-.actionRow {
+
+/* CLEAR + SAVE */
+
+.smallButtons {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
   gap: 10px;
-  margin: 18px 0;
+  margin: 14px 0;
 }
 
-.actionBtn {
-  font-size: 18px;
+.smallButton {
+  flex: 1;
+
+  min-height: 52px;
+
+  border: 1px solid #444;
+  border-radius: 13px;
+
+  background: #222;
+  color: #fff;
+
+  font-size: 17px;
   font-weight: bold;
-  padding: 13px 20px;
-  border: 1px solid #aaa;
-  border-radius: 10px;
-  background: white;
+
   cursor: pointer;
 }
 
+#saveBtn {
+  background: #16803a;
+  border-color: #16803a;
+}
+
 #clearBtn {
-  background: #fff;
+  background: #333;
 }
 
-#readBtn {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
-}
 
-#stopReadBtn {
-  background: #555;
-  color: white;
-  border-color: #555;
-}
+/* RESULT */
 
 #result {
-  margin-top: 20px;
-  font-size: 21px;
+  margin: 15px 0 30px;
+  font-size: 17px;
   font-weight: bold;
 }
 
 .small {
-  font-size: 14px;
-  color: #666;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #aaa;
 }
 
 </style>
+
 </head>
 
 
 <body>
+
 
 <h1>Voice Dictation</h1>
 
@@ -173,7 +208,7 @@ input {
 
 <div class="control">
 
-<label>Dictation / Reading Language</label>
+<label>Language</label>
 
 <select id="language">
 
@@ -198,11 +233,11 @@ input {
 </div>
 
 
-<!-- VOICE -->
+<!-- READ VOICE -->
 
 <div class="control">
 
-<label>Read Back Voice</label>
+<label>Read Voice</label>
 
 <select id="voiceGender">
 
@@ -215,10 +250,6 @@ input {
   </option>
 
 </select>
-
-<div class="small">
-  Available voices depend on your phone/computer.
-</div>
 
 </div>
 
@@ -258,9 +289,9 @@ input {
 </div>
 
 
-<!-- DRIVE OPTIONS -->
+<!-- GOOGLE DRIVE -->
 
-<div id="driveOptions" class="control">
+<div id="driveOptions">
 
 <label>Google Drive Format</label>
 
@@ -276,7 +307,9 @@ input {
 
 </select>
 
+
 <br><br>
+
 
 <label>Google Drive Folder URL</label>
 
@@ -286,25 +319,40 @@ input {
 >
 
 <div class="small">
-  Paste Google Drive folder URL or folder ID.
+Paste Google Drive folder URL or folder ID.
 </div>
 
 </div>
 
 
-<!-- MICROPHONE -->
+<!-- LISTEN BUTTON -->
 
-<button id="micBtn" type="button">
-🎤
+<button
+  id="micBtn"
+  class="mainButton"
+  type="button"
+>
+
+<span
+  id="micIcon"
+  class="buttonIcon"
+>
+🎙
+</span>
+
+<span id="micText">
+LISTEN
+</span>
+
 </button>
 
 
 <div id="status">
-PRESS GREEN TO START
+PRESS BLUE TO LISTEN
 </div>
 
 
-<!-- EDITABLE TRANSCRIPTION -->
+<!-- TRANSCRIPT -->
 
 <textarea
   id="heard"
@@ -312,32 +360,47 @@ PRESS GREEN TO START
 ></textarea>
 
 
-<!-- TEXT CONTROLS -->
-
-<div class="actionRow">
-
-<button
-  id="clearBtn"
-  class="actionBtn"
-  type="button"
->
-🗑️ CLEAR
-</button>
+<!-- READ BUTTON -->
 
 <button
   id="readBtn"
-  class="actionBtn"
+  class="mainButton"
   type="button"
 >
-🔊 READ
+
+<span
+  id="readIcon"
+  class="buttonIcon"
+>
+▶
+</span>
+
+<span id="readText">
+READ
+</span>
+
 </button>
 
+
+<!-- CLEAR + SAVE -->
+
+<div class="smallButtons">
+
 <button
-  id="stopReadBtn"
-  class="actionBtn"
+  id="clearBtn"
+  class="smallButton"
   type="button"
 >
-⏹ STOP READING
+CLEAR
+</button>
+
+
+<button
+  id="saveBtn"
+  class="smallButton"
+  type="button"
+>
+💾 SAVE
 </button>
 
 </div>
@@ -346,6 +409,7 @@ PRESS GREEN TO START
 <div id="result">
 —
 </div>
+
 
 
 <script>
@@ -365,6 +429,23 @@ const BACKEND_URL =
 const micBtn =
   document.getElementById("micBtn");
 
+const micIcon =
+  document.getElementById("micIcon");
+
+const micText =
+  document.getElementById("micText");
+
+
+const readBtn =
+  document.getElementById("readBtn");
+
+const readIcon =
+  document.getElementById("readIcon");
+
+const readText =
+  document.getElementById("readText");
+
+
 const statusEl =
   document.getElementById("status");
 
@@ -374,11 +455,13 @@ const heardEl =
 const resultEl =
   document.getElementById("result");
 
+
 const languageEl =
   document.getElementById("language");
 
 const voiceGenderEl =
   document.getElementById("voiceGender");
+
 
 const destinationEl =
   document.getElementById("destination");
@@ -395,14 +478,12 @@ const fileNameEl =
 const folderEl =
   document.getElementById("folder");
 
+
 const clearBtn =
   document.getElementById("clearBtn");
 
-const readBtn =
-  document.getElementById("readBtn");
-
-const stopReadBtn =
-  document.getElementById("stopReadBtn");
+const saveBtn =
+  document.getElementById("saveBtn");
 
 
 /*************************************************
@@ -416,6 +497,9 @@ let listening = false;
 let stopping = false;
 
 let saving = false;
+
+let reading = false;
+
 
 let finalText = "";
 
@@ -450,7 +534,7 @@ updateDestination();
 
 
 /*************************************************
- NORMALIZE
+ NORMALIZE TEXT
 *************************************************/
 
 function normalizeText(text) {
@@ -463,7 +547,7 @@ function normalizeText(text) {
 
 
 /*************************************************
- FINAL SPEECH / DUPLICATE PROTECTION
+ DUPLICATE PROTECTION
 *************************************************/
 
 function commitFinalTranscript(newText) {
@@ -472,7 +556,9 @@ function commitFinalTranscript(newText) {
     normalizeText(newText);
 
 
-  if (!newText) return;
+  if (!newText) {
+    return;
+  }
 
 
   /*
@@ -489,15 +575,25 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    Chrome expanded previous phrase.
+    Chrome expanded the previous phrase.
 
-    Add ONLY the new ending.
+    Example:
+
+    તો પછી
+
+    becomes:
+
+    તો પછી એન્જોય કરો
+
+    Add ONLY:
+    એન્જોય કરો
   */
 
   if (
     lastFinalRaw &&
     newText.startsWith(lastFinalRaw)
   ) {
+
 
     const extra =
       normalizeText(
@@ -526,8 +622,7 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    Chrome returned shorter version
-    of previous phrase.
+    Ignore shorter duplicate version.
   */
 
   if (
@@ -541,7 +636,7 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    New phrase
+    New phrase.
   */
 
   finalText +=
@@ -585,10 +680,11 @@ function showTranscript() {
 
 
 /*************************************************
- SPEECH RECOGNITION
+ CREATE SPEECH RECOGNITION
 *************************************************/
 
 function createRecognizer() {
+
 
   const SR =
     window.SpeechRecognition ||
@@ -627,7 +723,7 @@ function createRecognizer() {
 
 
 /*************************************************
- RESULTS
+ SPEECH RESULT
 *************************************************/
 
   recognition.onresult =
@@ -676,6 +772,7 @@ function createRecognizer() {
           result.isFinal
         ) {
 
+
           commitFinalTranscript(
             transcript
           );
@@ -684,6 +781,7 @@ function createRecognizer() {
 
 
         else {
+
 
           if (
             currentInterim
@@ -713,7 +811,7 @@ function createRecognizer() {
 
 
 /*************************************************
- ERROR
+ SPEECH ERROR
 *************************************************/
 
   recognition.onerror =
@@ -750,7 +848,7 @@ function createRecognizer() {
 
 
       /*
-        User pressed RED
+        User pressed STOP
       */
 
       if (
@@ -766,24 +864,11 @@ function createRecognizer() {
           false;
 
 
-        updateButton();
+        updateMicButton();
 
 
         showTranscript();
 
-
-        /*
-          We DO NOT automatically save here.
-
-          This gives you time to:
-          EDIT
-          READ
-          CLEAR
-          VERIFY
-
-          Then press SAVE using the button
-          created below.
-        */
 
         statusEl.textContent =
           "DICTATION READY";
@@ -797,7 +882,7 @@ function createRecognizer() {
       /*
         Chrome automatically stopped.
 
-        Restart recognition.
+        Restart automatically.
       */
 
       if (
@@ -856,10 +941,11 @@ function createRecognizer() {
 
 
 /*************************************************
- MIC BUTTON DISPLAY
+ MIC BUTTON APPEARANCE
 *************************************************/
 
-function updateButton() {
+function updateMicButton() {
+
 
   if (
     listening
@@ -871,15 +957,23 @@ function updateButton() {
     );
 
 
+    micIcon.textContent =
+      "■";
+
+
+    micText.textContent =
+      "STOP LISTENING";
+
+
     statusEl.textContent =
-      "LISTENING — PRESS RED TO STOP";
+      "LISTENING...";
 
 
     languageEl.disabled =
       true;
 
-
   }
+
 
   else {
 
@@ -887,6 +981,14 @@ function updateButton() {
     micBtn.classList.remove(
       "listening"
     );
+
+
+    micIcon.textContent =
+      "🎙";
+
+
+    micText.textContent =
+      "LISTEN";
 
 
     languageEl.disabled =
@@ -906,9 +1008,9 @@ micBtn.addEventListener(
   function() {
 
 
-    /*
-      START
-    */
+    /*********************************************
+     START LISTENING
+    *********************************************/
 
     if (
       !listening
@@ -916,10 +1018,10 @@ micBtn.addEventListener(
 
 
       /*
-        Stop read-back if currently speaking.
+        Stop reading first.
       */
 
-      window.speechSynthesis.cancel();
+      stopReading();
 
 
       finalText =
@@ -965,7 +1067,7 @@ micBtn.addEventListener(
           true;
 
 
-        updateButton();
+        updateMicButton();
 
       }
 
@@ -985,9 +1087,9 @@ micBtn.addEventListener(
     }
 
 
-    /*
-      STOP
-    */
+    /*********************************************
+     STOP LISTENING
+    *********************************************/
 
     stopping =
       true;
@@ -998,6 +1100,7 @@ micBtn.addEventListener(
 
 
     try {
+
 
       recognition.stop();
 
@@ -1015,7 +1118,7 @@ micBtn.addEventListener(
         false;
 
 
-      updateButton();
+      updateMicButton();
 
 
       statusEl.textContent =
@@ -1028,7 +1131,34 @@ micBtn.addEventListener(
 
 
 /*************************************************
- CLEAR BUTTON
+ MANUAL TEXT EDIT
+*************************************************/
+
+heardEl.addEventListener(
+  "input",
+  function() {
+
+
+    if (
+      !listening
+    ) {
+
+
+      finalText =
+        heardEl.value;
+
+
+      lastFinalRaw =
+        "";
+
+    }
+
+  }
+);
+
+
+/*************************************************
+ CLEAR
 *************************************************/
 
 clearBtn.addEventListener(
@@ -1036,23 +1166,21 @@ clearBtn.addEventListener(
   function() {
 
 
-    /*
-      Don't clear while recording.
-    */
-
     if (
       listening
     ) {
 
+
       resultEl.textContent =
-        "Stop dictation before clearing.";
+        "Stop listening before clearing.";
+
 
       return;
 
     }
 
 
-    window.speechSynthesis.cancel();
+    stopReading();
 
 
     finalText =
@@ -1076,41 +1204,30 @@ clearBtn.addEventListener(
 
 
     statusEl.textContent =
-      "PRESS GREEN TO START";
+      "PRESS BLUE TO LISTEN";
 
   }
 );
 
 
 /*************************************************
- KEEP FINAL TEXT SYNCED WITH MANUAL EDITS
-*************************************************/
-
-heardEl.addEventListener(
-  "input",
-  function() {
-
-    if (
-      !listening
-    ) {
-
-      finalText =
-        heardEl.value;
-
-      lastFinalRaw =
-        "";
-
-    }
-
-  }
-);
-
-
-/*************************************************
- TEXT TO SPEECH VOICES
+ LOAD READ-BACK VOICES
 *************************************************/
 
 function loadVoices() {
+
+
+  if (
+    !(
+      "speechSynthesis"
+      in window
+    )
+  ) {
+
+    return;
+
+  }
+
 
   availableVoices =
     window.speechSynthesis
@@ -1123,8 +1240,10 @@ loadVoices();
 
 
 if (
-  "speechSynthesis" in window
+  "speechSynthesis"
+  in window
 ) {
+
 
   window.speechSynthesis.onvoiceschanged =
     loadVoices;
@@ -1133,13 +1252,14 @@ if (
 
 
 /*************************************************
- FIND BEST VOICE
+ FIND VOICE
 *************************************************/
 
 function findVoice(
   language,
   gender
 ) {
+
 
   const lang =
     language.toLowerCase();
@@ -1149,14 +1269,10 @@ function findVoice(
     lang.split("-")[0];
 
 
-  /*
-    First find voices matching
-    selected language.
-  */
-
   let matches =
     availableVoices.filter(
-      voice => {
+      function(voice) {
+
 
         const vLang =
           String(
@@ -1175,11 +1291,6 @@ function findVoice(
     );
 
 
-  /*
-    If device has no exact voice,
-    let browser choose default.
-  */
-
   if (
     matches.length === 0
   ) {
@@ -1190,31 +1301,32 @@ function findVoice(
 
 
   /*
-    Browser voice objects unfortunately
-    don't provide a standard gender field.
+    Browsers do not provide an official
+    male/female property.
 
-    These names help identify many common
-    Microsoft/Google/Android voices.
+    We try common voice names.
   */
 
   const femaleHints = [
+
     "female",
     "woman",
     "zira",
     "heera",
     "kalpana",
-    "swara",
-    "google हिन्दी",
-    "google ગુજરાતી"
+    "swara"
+
   ];
 
 
   const maleHints = [
+
     "male",
     "man",
     "david",
     "ravi",
     "hemant"
+
   ];
 
 
@@ -1239,7 +1351,7 @@ function findVoice(
       hints.some(
         hint =>
           name.includes(
-            hint.toLowerCase()
+            hint
           )
       )
     ) {
@@ -1252,9 +1364,9 @@ function findVoice(
 
 
   /*
-    No identifiable gender match.
-
-    Use first compatible voice.
+    If no gender-specific voice can
+    be identified, use the first
+    matching language voice.
   */
 
   return matches[0];
@@ -1263,7 +1375,81 @@ function findVoice(
 
 
 /*************************************************
- READ BUTTON
+ READ BUTTON APPEARANCE
+*************************************************/
+
+function updateReadButton() {
+
+
+  if (
+    reading
+  ) {
+
+
+    readBtn.classList.add(
+      "reading"
+    );
+
+
+    readIcon.textContent =
+      "■";
+
+
+    readText.textContent =
+      "STOP READING";
+
+  }
+
+
+  else {
+
+
+    readBtn.classList.remove(
+      "reading"
+    );
+
+
+    readIcon.textContent =
+      "▶";
+
+
+    readText.textContent =
+      "READ";
+
+  }
+
+}
+
+
+/*************************************************
+ STOP READING
+*************************************************/
+
+function stopReading() {
+
+
+  if (
+    "speechSynthesis"
+    in window
+  ) {
+
+
+    window.speechSynthesis.cancel();
+
+  }
+
+
+  reading =
+    false;
+
+
+  updateReadButton();
+
+}
+
+
+/*************************************************
+ READ / STOP READ TOGGLE
 *************************************************/
 
 readBtn.addEventListener(
@@ -1271,17 +1457,50 @@ readBtn.addEventListener(
   function() {
 
 
+    /*********************************************
+     STOP READING
+    *********************************************/
+
     if (
-      listening
+      reading
     ) {
 
-      resultEl.textContent =
-        "Stop dictation before reading.";
+
+      stopReading();
+
+
+      statusEl.textContent =
+        heardEl.value.trim()
+          ? "DICTATION READY"
+          : "PRESS BLUE TO LISTEN";
+
 
       return;
 
     }
 
+
+    /*********************************************
+     DON'T READ WHILE LISTENING
+    *********************************************/
+
+    if (
+      listening
+    ) {
+
+
+      resultEl.textContent =
+        "Stop listening before reading.";
+
+
+      return;
+
+    }
+
+
+    /*********************************************
+     GET TEXT
+    *********************************************/
 
     const text =
       heardEl.value.trim();
@@ -1291,8 +1510,10 @@ readBtn.addEventListener(
       !text
     ) {
 
+
       resultEl.textContent =
         "Nothing to read.";
+
 
       return;
 
@@ -1306,17 +1527,15 @@ readBtn.addEventListener(
       )
     ) {
 
+
       resultEl.textContent =
         "Text-to-speech is not supported.";
+
 
       return;
 
     }
 
-
-    /*
-      Stop previous reading.
-    */
 
     window.speechSynthesis.cancel();
 
@@ -1345,15 +1564,12 @@ readBtn.addEventListener(
       selectedVoice
     ) {
 
+
       utterance.voice =
         selectedVoice;
 
     }
 
-
-    /*
-      Natural defaults
-    */
 
     utterance.rate =
       1.0;
@@ -1367,17 +1583,27 @@ readBtn.addEventListener(
       1.0;
 
 
-    utterance.onstart =
-      function() {
+    reading =
+      true;
 
-        statusEl.textContent =
-          "🔊 READING...";
 
-    };
+    updateReadButton();
+
+
+    statusEl.textContent =
+      "READING...";
 
 
     utterance.onend =
       function() {
+
+
+        reading =
+          false;
+
+
+        updateReadButton();
+
 
         statusEl.textContent =
           "DICTATION READY";
@@ -1388,9 +1614,29 @@ readBtn.addEventListener(
     utterance.onerror =
       function(event) {
 
-        resultEl.textContent =
-          "READ ERROR: " +
-          event.error;
+
+        reading =
+          false;
+
+
+        updateReadButton();
+
+
+        /*
+          Ignore normal cancellation.
+        */
+
+        if (
+          event.error !==
+          "canceled"
+        ) {
+
+
+          resultEl.textContent =
+            "READ ERROR: " +
+            event.error;
+
+        }
 
     };
 
@@ -1404,55 +1650,7 @@ readBtn.addEventListener(
 
 
 /*************************************************
- STOP READING
-*************************************************/
-
-stopReadBtn.addEventListener(
-  "click",
-  function() {
-
-
-    window.speechSynthesis.cancel();
-
-
-    statusEl.textContent =
-      heardEl.value.trim()
-        ? "DICTATION READY"
-        : "PRESS GREEN TO START";
-
-  }
-);
-
-
-/*************************************************
- ADD SAVE BUTTON
-*************************************************/
-
-const saveBtn =
-  document.createElement(
-    "button"
-  );
-
-
-saveBtn.type =
-  "button";
-
-
-saveBtn.className =
-  "actionBtn";
-
-
-saveBtn.textContent =
-  "💾 SAVE";
-
-
-document
-  .querySelector(".actionRow")
-  .appendChild(saveBtn);
-
-
-/*************************************************
- SAVE BUTTON
+ SAVE
 *************************************************/
 
 saveBtn.addEventListener(
@@ -1464,15 +1662,17 @@ saveBtn.addEventListener(
       listening
     ) {
 
+
       resultEl.textContent =
-        "Stop dictation before saving.";
+        "Stop listening before saving.";
+
 
       return;
 
     }
 
 
-    window.speechSynthesis.cancel();
+    stopReading();
 
 
     saveDictation();
@@ -1498,12 +1698,8 @@ function saveDictation() {
 
 
   /*
-    IMPORTANT:
-
-    Save what is ACTUALLY in the textbox.
-
-    This means you can manually correct
-    words before saving.
+    Save exactly what is currently
+    inside the editable text box.
   */
 
   const text =
@@ -1514,8 +1710,10 @@ function saveDictation() {
     !text
   ) {
 
+
     resultEl.textContent =
       "Nothing to save.";
+
 
     return;
 
@@ -1527,9 +1725,11 @@ function saveDictation() {
     "local"
   ) {
 
+
     saveLocal(
       text
     );
+
 
     return;
 
@@ -1560,6 +1760,7 @@ function saveLocal(text) {
       .toLowerCase()
       .endsWith(".txt")
   ) {
+
 
     name +=
       ".txt";
@@ -1624,12 +1825,15 @@ function saveLocal(text) {
   setTimeout(
     function() {
 
+
       URL.revokeObjectURL(
         url
       );
 
     },
+
     1000
+
   );
 
 
@@ -1645,7 +1849,7 @@ function saveLocal(text) {
 
 
 /*************************************************
- GOOGLE DRIVE SAVE
+ GOOGLE DRIVE
 *************************************************/
 
 function saveGoogleDrive(text) {
@@ -1690,8 +1894,13 @@ function saveGoogleDrive(text) {
   fetch(
     BACKEND_URL,
     {
-      method: "POST",
-      body: data
+
+      method:
+        "POST",
+
+      body:
+        data
+
     }
   )
 
@@ -1762,7 +1971,17 @@ function saveGoogleDrive(text) {
 
 }
 
+
+/*************************************************
+ INITIAL BUTTON STATES
+*************************************************/
+
+updateMicButton();
+
+updateReadButton();
+
 </script>
 
 </body>
+
 </html>
