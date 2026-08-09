@@ -17,7 +17,6 @@
   box-sizing: border-box;
 }
 
-
 /* =========================================
    PREVENT UI SELECTION
    TEXTBOX REMAINS SELECTABLE
@@ -177,7 +176,7 @@ input {
 }
 
 
-/* READY */
+/* READY = BLUE */
 
 #micBtn,
 #readBtn {
@@ -185,7 +184,7 @@ input {
 }
 
 
-/* ACTIVE */
+/* ACTIVE = RED */
 
 #micBtn.listening,
 #readBtn.reading {
@@ -217,6 +216,8 @@ input {
 
 #heard {
   width: 100%;
+
+  height: 320px;
   min-height: 260px;
 
   padding: 16px;
@@ -230,7 +231,22 @@ input {
   font-size: 22px;
   line-height: 1.5;
 
-  resize: vertical;
+  /*
+    SCROLLBAR
+  */
+
+  overflow-y: scroll;
+
+  /*
+    Do not resize accidentally on phone.
+  */
+
+  resize: none;
+
+  /*
+    Text itself can still be selected,
+    edited, copied and pasted.
+  */
 
   -webkit-user-select: text;
   user-select: text;
@@ -310,9 +326,7 @@ input {
 <h1>Voice Dictation</h1>
 
 
-<!-- =========================================
-     LANGUAGE
-========================================= -->
+<!-- LANGUAGE -->
 
 <div class="control">
 
@@ -341,9 +355,7 @@ input {
 </div>
 
 
-<!-- =========================================
-     READ VOICE
-========================================= -->
+<!-- READ VOICE -->
 
 <div class="control">
 
@@ -369,9 +381,7 @@ TEST
 </div>
 
 
-<!-- =========================================
-     SAVE DESTINATION
-========================================= -->
+<!-- SAVE DESTINATION -->
 
 <div class="control">
 
@@ -392,9 +402,7 @@ TEST
 </div>
 
 
-<!-- =========================================
-     FILE NAME
-========================================= -->
+<!-- FILE NAME -->
 
 <div class="control">
 
@@ -408,9 +416,7 @@ TEST
 </div>
 
 
-<!-- =========================================
-     GOOGLE DRIVE
-========================================= -->
+<!-- GOOGLE DRIVE OPTIONS -->
 
 <div id="driveOptions">
 
@@ -428,9 +434,7 @@ TEST
 
 </select>
 
-
 <br><br>
-
 
 <label>Google Drive Folder URL</label>
 
@@ -439,7 +443,6 @@ TEST
   placeholder="Leave blank for My Drive"
 >
 
-
 <div class="small">
 Paste Google Drive folder URL or folder ID.
 </div>
@@ -447,9 +450,7 @@ Paste Google Drive folder URL or folder ID.
 </div>
 
 
-<!-- =========================================
-     MIC BUTTON
-========================================= -->
+<!-- MIC BUTTON -->
 
 <button
   id="micBtn"
@@ -476,9 +477,7 @@ PRESS BLUE TO LISTEN
 </div>
 
 
-<!-- =========================================
-     TEXTBOX
-========================================= -->
+<!-- DICTATION TEXTBOX -->
 
 <textarea
   id="heard"
@@ -486,9 +485,7 @@ PRESS BLUE TO LISTEN
 ></textarea>
 
 
-<!-- =========================================
-     READ
-========================================= -->
+<!-- READ BUTTON -->
 
 <button
   id="readBtn"
@@ -510,9 +507,7 @@ READ
 </button>
 
 
-<!-- =========================================
-     CLEAR / SAVE
-========================================= -->
+<!-- CLEAR / SAVE -->
 
 <div class="smallButtons">
 
@@ -523,7 +518,6 @@ READ
 >
 CLEAR
 </button>
-
 
 <button
   id="saveBtn"
@@ -565,7 +559,6 @@ const micIcon =
 const micText =
   document.getElementById("micText");
 
-
 const readBtn =
   document.getElementById("readBtn");
 
@@ -575,13 +568,11 @@ const readIcon =
 const readText =
   document.getElementById("readText");
 
-
 const voiceSelectEl =
   document.getElementById("voiceSelect");
 
 const testVoiceBtn =
   document.getElementById("testVoiceBtn");
-
 
 const statusEl =
   document.getElementById("status");
@@ -592,10 +583,8 @@ const heardEl =
 const resultEl =
   document.getElementById("result");
 
-
 const languageEl =
   document.getElementById("language");
-
 
 const destinationEl =
   document.getElementById("destination");
@@ -611,7 +600,6 @@ const fileNameEl =
 
 const folderEl =
   document.getElementById("folder");
-
 
 const clearBtn =
   document.getElementById("clearBtn");
@@ -634,13 +622,11 @@ let saving = false;
 
 let reading = false;
 
-
 let finalText = "";
 
 let interimText = "";
 
 let lastFinalRaw = "";
-
 
 let availableVoices = [];
 
@@ -687,7 +673,6 @@ function normalizeText(text) {
 
 function commitFinalTranscript(newText) {
 
-
   newText =
     normalizeText(newText);
 
@@ -713,14 +698,13 @@ function commitFinalTranscript(newText) {
   /*
     LONGER VERSION OF SAME RESULT
 
-    Only append new words.
+    Only append the new ending.
   */
 
   if (
     lastFinalRaw &&
     newText.startsWith(lastFinalRaw)
   ) {
-
 
     const extra =
       normalizeText(
@@ -731,7 +715,6 @@ function commitFinalTranscript(newText) {
 
 
     if (extra) {
-
 
       finalText +=
         (finalText ? " " : "") +
@@ -750,7 +733,7 @@ function commitFinalTranscript(newText) {
 
 
   /*
-    SHORTER DUPLICATE
+    SHORTER VERSION OF SAME RESULT
   */
 
   if (
@@ -780,10 +763,13 @@ function commitFinalTranscript(newText) {
 
 /*************************************************
  DISPLAY TRANSCRIPT
+
+ IMPORTANT:
+ While listening, automatically scroll
+ textbox to newest appended text.
 *************************************************/
 
 function showTranscript() {
-
 
   let display =
     normalizeText(finalText);
@@ -795,7 +781,6 @@ function showTranscript() {
 
   if (temp) {
 
-
     display +=
       (display ? " " : "") +
       temp;
@@ -806,15 +791,26 @@ function showTranscript() {
   heardEl.value =
     display;
 
+
+  /*
+    AUTO-SCROLL ONLY WHILE LISTENING
+  */
+
+  if (listening) {
+
+    heardEl.scrollTop =
+      heardEl.scrollHeight;
+
+  }
+
 }
 
 
 /*************************************************
- CREATE RECOGNIZER
+ CREATE SPEECH RECOGNIZER
 *************************************************/
 
 function createRecognizer() {
-
 
   const SR =
     window.SpeechRecognition ||
@@ -823,11 +819,9 @@ function createRecognizer() {
 
   if (!SR) {
 
-
     alert(
       "Speech recognition is not supported. Use Chrome or Edge."
     );
-
 
     return false;
 
@@ -855,12 +849,11 @@ function createRecognizer() {
 
 
 /*************************************************
- RESULT
+ SPEECH RESULT
 *************************************************/
 
   recognition.onresult =
     function(event) {
-
 
       let currentInterim =
         "";
@@ -871,7 +864,6 @@ function createRecognizer() {
         i < event.results.length;
         i++
       ) {
-
 
         const result =
           event.results[i];
@@ -904,21 +896,17 @@ function createRecognizer() {
           result.isFinal
         ) {
 
-
           commitFinalTranscript(
             transcript
           );
 
         }
 
-
         else {
-
 
           if (
             currentInterim
           ) {
-
 
             currentInterim +=
               " ";
@@ -935,10 +923,8 @@ function createRecognizer() {
 
 
       /*
-        IMPORTANT:
-
-        Interim text is replaced.
-        It is NOT repeatedly appended.
+        REPLACE INTERIM TEXT.
+        DO NOT APPEND INTERIM TEXT.
       */
 
       interimText =
@@ -951,7 +937,7 @@ function createRecognizer() {
 
 
 /*************************************************
- ERROR
+ SPEECH ERROR
 *************************************************/
 
   recognition.onerror =
@@ -959,7 +945,7 @@ function createRecognizer() {
 
 
       /*
-        Ignore normal STOP abort.
+        Ignore normal abort caused by STOP.
       */
 
       if (
@@ -983,7 +969,6 @@ function createRecognizer() {
         event.error === "audio-capture"
       ) {
 
-
         shouldRestart =
           false;
 
@@ -1000,7 +985,7 @@ function createRecognizer() {
 
 
 /*************************************************
- END
+ RECOGNITION ENDED
 *************************************************/
 
   recognition.onend =
@@ -1008,16 +993,14 @@ function createRecognizer() {
 
 
       /*
-        User pressed STOP.
-
-        Do not restart.
+        USER PRESSED STOP
+        DO NOT RESTART
       */
 
       if (
         !shouldRestart ||
         !listening
       ) {
-
 
         interimText =
           "";
@@ -1032,9 +1015,11 @@ function createRecognizer() {
 
 
       /*
-        Chrome sometimes ends during silence.
+        Chrome sometimes ends recognition
+        during silence.
 
-        Restart only if LISTEN is still active.
+        Restart only if user still wants
+        LISTEN active.
       */
 
       setTimeout(
@@ -1054,7 +1039,6 @@ function createRecognizer() {
 
           try {
 
-
             lastFinalRaw =
               "";
 
@@ -1068,7 +1052,6 @@ function createRecognizer() {
 
 
           catch(error) {
-
 
             console.log(
               "Recognition restart:",
@@ -1097,11 +1080,9 @@ function createRecognizer() {
 
 function updateMicButton() {
 
-
   if (
     listening
   ) {
-
 
     micBtn.classList.add(
       "listening"
@@ -1125,9 +1106,7 @@ function updateMicButton() {
 
   }
 
-
   else {
-
 
     micBtn.classList.remove(
       "listening"
@@ -1161,7 +1140,7 @@ micBtn.addEventListener(
 
 
     /*********************************************
-     START
+     START LISTENING
     *********************************************/
 
     if (
@@ -1170,14 +1149,14 @@ micBtn.addEventListener(
 
 
       /*
-        Immediately stop TTS before opening mic.
+        Stop speaker playback first.
       */
 
       stopReading();
 
 
       /*
-        Fresh dictation.
+        Start fresh dictation.
       */
 
       finalText =
@@ -1196,6 +1175,10 @@ micBtn.addEventListener(
         "";
 
 
+      heardEl.scrollTop =
+        0;
+
+
       resultEl.textContent =
         "";
 
@@ -1208,10 +1191,8 @@ micBtn.addEventListener(
         !createRecognizer()
       ) {
 
-
         shouldRestart =
           false;
-
 
         return;
 
@@ -1219,7 +1200,6 @@ micBtn.addEventListener(
 
 
       try {
-
 
         listening =
           true;
@@ -1234,7 +1214,6 @@ micBtn.addEventListener(
 
 
       catch(error) {
-
 
         listening =
           false;
@@ -1260,12 +1239,12 @@ micBtn.addEventListener(
 
 
     /*********************************************
-     STOP
+     STOP LISTENING
     *********************************************/
 
 
     /*
-      FIRST disable automatic restart.
+      FIRST prevent automatic restart.
     */
 
     shouldRestart =
@@ -1273,7 +1252,7 @@ micBtn.addEventListener(
 
 
     /*
-      SECOND change state immediately.
+      SECOND immediately change state.
     */
 
     listening =
@@ -1281,7 +1260,7 @@ micBtn.addEventListener(
 
 
     /*
-      THIRD change button RED -> BLUE immediately.
+      THIRD immediately change RED -> BLUE.
     */
 
     updateMicButton();
@@ -1292,7 +1271,7 @@ micBtn.addEventListener(
 
 
     /*
-      Remove temporary unconfirmed words.
+      Remove temporary unconfirmed text.
     */
 
     interimText =
@@ -1308,11 +1287,9 @@ micBtn.addEventListener(
 
     try {
 
-
       if (
         recognition
       ) {
-
 
         recognition.stop();
 
@@ -1322,7 +1299,6 @@ micBtn.addEventListener(
 
 
     catch(error) {
-
 
       console.log(
         "Stop:",
@@ -1336,7 +1312,7 @@ micBtn.addEventListener(
 
 
 /*************************************************
- MANUAL TEXT EDIT
+ MANUAL TEXT EDITING
 *************************************************/
 
 heardEl.addEventListener(
@@ -1344,11 +1320,9 @@ heardEl.addEventListener(
 
   function() {
 
-
     if (
       !listening
     ) {
-
 
       finalText =
         heardEl.value;
@@ -1377,10 +1351,8 @@ clearBtn.addEventListener(
       listening
     ) {
 
-
       resultEl.textContent =
         "Stop listening before clearing.";
-
 
       return;
 
@@ -1406,6 +1378,10 @@ clearBtn.addEventListener(
       "";
 
 
+    heardEl.scrollTop =
+      0;
+
+
     resultEl.textContent =
       "Text cleared";
 
@@ -1420,12 +1396,11 @@ clearBtn.addEventListener(
 /*************************************************
  LOAD DEVICE VOICES
 
- READ ONLY.
- DOES NOT TOUCH MICROPHONE.
+ THIS IS READ-ONLY.
+ IT DOES NOT TOUCH MICROPHONE.
 *************************************************/
 
 function loadVoices() {
-
 
   if (
     !(
@@ -1460,14 +1435,9 @@ function loadVoices() {
     selectedLanguage.split("-")[0];
 
 
-  /*
-    Find voices matching current language.
-  */
-
   let matchingVoices =
     availableVoices.filter(
       function(voice) {
-
 
         const voiceLanguage =
           String(
@@ -1487,14 +1457,13 @@ function loadVoices() {
 
 
   /*
-    If no exact language voices exist,
-    show all voices.
+    If no matching language voice exists,
+    show all available voices.
   */
 
   if (
     matchingVoices.length === 0
   ) {
-
 
     matchingVoices =
       availableVoices;
@@ -1509,7 +1478,6 @@ function loadVoices() {
   if (
     matchingVoices.length === 0
   ) {
-
 
     const option =
       document.createElement(
@@ -1538,7 +1506,6 @@ function loadVoices() {
   matchingVoices.forEach(
     function(voice) {
 
-
       const option =
         document.createElement(
           "option"
@@ -1561,7 +1528,6 @@ function loadVoices() {
         voice.default
       ) {
 
-
         name +=
           " ★";
 
@@ -1580,10 +1546,6 @@ function loadVoices() {
   );
 
 
-  /*
-    Restore selected voice if possible.
-  */
-
   if (
     previousSelection &&
     [...voiceSelectEl.options]
@@ -1594,7 +1556,6 @@ function loadVoices() {
       )
   ) {
 
-
     voiceSelectEl.value =
       previousSelection;
 
@@ -1604,7 +1565,7 @@ function loadVoices() {
 
 
 /*************************************************
- LOAD VOICES ONCE
+ LOAD VOICES
 *************************************************/
 
 loadVoices();
@@ -1615,7 +1576,6 @@ if (
   in window
 ) {
 
-
   window.speechSynthesis.onvoiceschanged =
     loadVoices;
 
@@ -1624,8 +1584,6 @@ if (
 
 /*************************************************
  LANGUAGE CHANGE
-
- Only refreshes TTS voice list.
 *************************************************/
 
 languageEl.addEventListener(
@@ -1640,7 +1598,6 @@ languageEl.addEventListener(
 
 function getSelectedVoice() {
 
-
   const index =
     Number(
       voiceSelectEl.value
@@ -1651,7 +1608,6 @@ function getSelectedVoice() {
     Number.isNaN(index) ||
     !availableVoices[index]
   ) {
-
 
     return null;
 
@@ -1677,10 +1633,8 @@ testVoiceBtn.addEventListener(
       listening
     ) {
 
-
       resultEl.textContent =
         "Stop listening before testing voice.";
-
 
       return;
 
@@ -1694,19 +1648,13 @@ testVoiceBtn.addEventListener(
       )
     ) {
 
-
       resultEl.textContent =
         "Text-to-speech is not supported.";
-
 
       return;
 
     }
 
-
-    /*
-      Stop existing speech.
-    */
 
     window.speechSynthesis.cancel();
 
@@ -1723,7 +1671,6 @@ testVoiceBtn.addEventListener(
       language === "gu-IN"
     ) {
 
-
       sample =
         "નમસ્તે. આ અવાજનો નમૂનો છે.";
 
@@ -1734,7 +1681,6 @@ testVoiceBtn.addEventListener(
       language === "hi-IN"
     ) {
 
-
       sample =
         "नमस्ते। यह आवाज़ का एक नमूना है।";
 
@@ -1744,7 +1690,6 @@ testVoiceBtn.addEventListener(
     else if (
       language === "en-IN"
     ) {
-
 
       sample =
         "Hello. This is a sample of the selected voice.";
@@ -1770,17 +1715,11 @@ testVoiceBtn.addEventListener(
       selectedVoice
     ) {
 
-
       utterance.voice =
         selectedVoice;
 
     }
 
-
-    /*
-      Slightly slower sounds more natural
-      on many Android voices.
-    */
 
     utterance.rate =
       0.95;
@@ -1808,11 +1747,9 @@ testVoiceBtn.addEventListener(
 
 function updateReadButton() {
 
-
   if (
     reading
   ) {
-
 
     readBtn.classList.add(
       "reading"
@@ -1828,9 +1765,7 @@ function updateReadButton() {
 
   }
 
-
   else {
-
 
     readBtn.classList.remove(
       "reading"
@@ -1855,12 +1790,10 @@ function updateReadButton() {
 
 function stopReading() {
 
-
   if (
     "speechSynthesis"
     in window
   ) {
-
 
     window.speechSynthesis.cancel();
 
@@ -1877,7 +1810,7 @@ function stopReading() {
 
 
 /*************************************************
- READ
+ READ BUTTON
 *************************************************/
 
 readBtn.addEventListener(
@@ -1893,7 +1826,6 @@ readBtn.addEventListener(
     if (
       reading
     ) {
-
 
       stopReading();
 
@@ -1917,10 +1849,8 @@ readBtn.addEventListener(
       listening
     ) {
 
-
       resultEl.textContent =
         "Stop listening before reading.";
-
 
       return;
 
@@ -1935,10 +1865,8 @@ readBtn.addEventListener(
       !text
     ) {
 
-
       resultEl.textContent =
         "Nothing to read.";
-
 
       return;
 
@@ -1952,19 +1880,13 @@ readBtn.addEventListener(
       )
     ) {
 
-
       resultEl.textContent =
         "Text-to-speech is not supported.";
-
 
       return;
 
     }
 
-
-    /*
-      Clear old speech queue.
-    */
 
     window.speechSynthesis.cancel();
 
@@ -1987,19 +1909,11 @@ readBtn.addEventListener(
       selectedVoice
     ) {
 
-
       utterance.voice =
         selectedVoice;
 
     }
 
-
-    /*
-      Natural-ish system TTS settings.
-
-      These only affect playback.
-      They have NO effect on microphone.
-    */
 
     utterance.rate =
       0.95;
@@ -2027,7 +1941,6 @@ readBtn.addEventListener(
     utterance.onend =
       function() {
 
-
         reading =
           false;
 
@@ -2044,7 +1957,6 @@ readBtn.addEventListener(
     utterance.onerror =
       function(event) {
 
-
         reading =
           false;
 
@@ -2056,7 +1968,6 @@ readBtn.addEventListener(
           event.error !==
           "canceled"
         ) {
-
 
           resultEl.textContent =
             "READ ERROR: " +
@@ -2089,10 +2000,8 @@ saveBtn.addEventListener(
       listening
     ) {
 
-
       resultEl.textContent =
         "Stop listening before saving.";
-
 
       return;
 
@@ -2109,11 +2018,10 @@ saveBtn.addEventListener(
 
 
 /*************************************************
- SAVE
+ SAVE DICTATION
 *************************************************/
 
 function saveDictation() {
-
 
   if (
     saving
@@ -2132,10 +2040,8 @@ function saveDictation() {
     !text
   ) {
 
-
     resultEl.textContent =
       "Nothing to save.";
-
 
     return;
 
@@ -2147,11 +2053,9 @@ function saveDictation() {
     "local"
   ) {
 
-
     saveLocal(
       text
     );
-
 
     return;
 
@@ -2171,7 +2075,6 @@ function saveDictation() {
 
 function saveLocal(text) {
 
-
   let name =
     fileNameEl.value.trim() ||
     "Voice Dictation";
@@ -2182,7 +2085,6 @@ function saveLocal(text) {
       .toLowerCase()
       .endsWith(".txt")
   ) {
-
 
     name +=
       ".txt";
@@ -2247,7 +2149,6 @@ function saveLocal(text) {
   setTimeout(
     function() {
 
-
       URL.revokeObjectURL(
         url
       );
@@ -2271,11 +2172,10 @@ function saveLocal(text) {
 
 
 /*************************************************
- GOOGLE DRIVE
+ GOOGLE DRIVE SAVE
 *************************************************/
 
 function saveGoogleDrive(text) {
-
 
   saving =
     true;
@@ -2330,7 +2230,6 @@ function saveGoogleDrive(text) {
   .then(
     function(response) {
 
-
       return response.json();
 
     }
@@ -2340,7 +2239,6 @@ function saveGoogleDrive(text) {
   .then(
     function(data) {
 
-
       saving =
         false;
 
@@ -2348,7 +2246,6 @@ function saveGoogleDrive(text) {
       if (
         data.success
       ) {
-
 
         statusEl.textContent =
           "SAVED";
@@ -2360,9 +2257,7 @@ function saveGoogleDrive(text) {
 
       }
 
-
       else {
-
 
         statusEl.textContent =
           "SAVE ERROR";
@@ -2380,7 +2275,6 @@ function saveGoogleDrive(text) {
 
   .catch(
     function(error) {
-
 
       saving =
         false;
@@ -2400,7 +2294,7 @@ function saveGoogleDrive(text) {
 
 
 /*************************************************
- INITIAL
+ INITIAL STATE
 *************************************************/
 
 updateMicButton();
