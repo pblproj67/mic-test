@@ -1,90 +1,206 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>Mic Test</title>
+<meta charset="utf-8">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px 15px;
-      background: #f5f5f5;
-    }
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1"
+>
 
-    h1 {
-      font-size: 32px;
-    }
+<title>Voice Dictation</title>
 
-    #micBtn {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: none;
-      background: #16a34a;
-      color: white;
-      font-size: 85px;
-      cursor: pointer;
-      margin-top: 25px;
-    }
+<style>
 
-    #micBtn.listening {
-      background: #dc2626;
-    }
+body {
 
-    #status {
-      font-size: 26px;
-      font-weight: bold;
-      margin-top: 25px;
-    }
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
 
-    #heard {
-      max-width: 600px;
-      min-height: 100px;
-      margin: 25px auto;
-      padding: 20px;
-      background: white;
-      border: 2px solid #ccc;
-      border-radius: 12px;
-      font-size: 28px;
-      word-break: break-word;
-    }
+  max-width: 800px;
 
-    #result {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-  </style>
+  margin: 20px auto;
+
+  padding: 15px;
+
+  text-align: center;
+
+  background: #f5f5f5;
+
+}
+
+
+h1 {
+
+  font-size: 32px;
+
+}
+
+
+#language {
+
+  font-size: 20px;
+
+  padding: 10px;
+
+  margin: 10px;
+
+  border-radius: 8px;
+
+}
+
+
+#micBtn {
+
+  display: block;
+
+  width: 220px;
+
+  height: 220px;
+
+  margin: 25px auto;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #16a34a;
+
+  color: white;
+
+  font-size: 85px;
+
+  cursor: pointer;
+
+}
+
+
+#micBtn.listening {
+
+  background: #dc2626;
+
+}
+
+
+#status {
+
+  font-size: 25px;
+
+  font-weight: bold;
+
+  margin: 20px;
+
+}
+
+
+#heard {
+
+  min-height: 250px;
+
+  padding: 20px;
+
+  background: white;
+
+  border: 2px solid #ccc;
+
+  border-radius: 12px;
+
+  font-size: 25px;
+
+  line-height: 1.5;
+
+  text-align: left;
+
+  white-space: pre-wrap;
+
+  overflow-wrap: anywhere;
+
+}
+
+
+#result {
+
+  margin-top: 20px;
+
+  font-size: 22px;
+
+  font-weight: bold;
+
+}
+
+</style>
+
 </head>
+
 
 <body>
 
-<h1>Microphone Test</h1>
 
-<button id="micBtn">🎤</button>
+<h1>Voice Dictation</h1>
+
+
+<select id="language">
+
+  <option value="hi-IN" selected>
+    🇮🇳 Hindi / Hinglish
+  </option>
+
+  <option value="en-IN">
+    🇮🇳 English (India)
+  </option>
+
+  <option value="en-US">
+    🇺🇸 English (US)
+  </option>
+
+</select>
+
+
+<button
+  id="micBtn"
+  type="button"
+>
+🎤
+</button>
+
 
 <div id="status">
-  PRESS GREEN TO START
+PRESS GREEN TO START
 </div>
+
 
 <div id="heard">
-  —
+—
 </div>
 
+
 <div id="result">
-  —
+—
 </div>
+
 
 
 <script>
 
-const BACKEND_URL =
-  "https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
+/************************************************
+ APPS SCRIPT BACKEND
+************************************************/
 
+const BACKEND_URL =
+"https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
+
+
+/************************************************
+ ELEMENTS
+************************************************/
 
 const micBtn =
   document.getElementById("micBtn");
@@ -98,15 +214,28 @@ const heardEl =
 const resultEl =
   document.getElementById("result");
 
+const languageEl =
+  document.getElementById("language");
+
+
+/************************************************
+ STATE
+************************************************/
 
 let recognition = null;
+
 let listening = false;
+
 let finalText = "";
 
+let interimText = "";
 
-/****************************************
- SPEECH RECOGNITION
-****************************************/
+let saving = false;
+
+
+/************************************************
+ CREATE SPEECH RECOGNITION
+************************************************/
 
 function initSpeech() {
 
@@ -122,221 +251,391 @@ function initSpeech() {
     );
 
     return false;
+
   }
 
 
-  recognition = new SR();
-
-  recognition.lang = "hi-IN";
-
-  recognition.interimResults = true;
-
-  recognition.maxAlternatives = 1;
+  recognition =
+    new SR();
 
 
-  recognition.onresult = function(event) {
-
-    let interim = "";
-
-
-    for (
-      let i = event.resultIndex;
-      i < event.results.length;
-      i++
-    ) {
-
-      const text =
-        event.results[i][0].transcript;
+  recognition.lang =
+    languageEl.value;
 
 
-      if (event.results[i].isFinal) {
+  /*
+   Longer dictation
+  */
 
-        finalText += text + " ";
+  recognition.continuous =
+    true;
+
+
+  recognition.interimResults =
+    true;
+
+
+  recognition.maxAlternatives =
+    1;
+
+
+  recognition.onresult =
+    function(event) {
+
+
+      interimText = "";
+
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+
+        const text =
+          event.results[i][0]
+            .transcript
+            .trim();
+
+
+        if (!text)
+          continue;
+
+
+        if (event.results[i].isFinal) {
+
+
+          finalText +=
+            (finalText ? " " : "") +
+            text;
+
+
+        }
+
+        else {
+
+
+          interimText +=
+            (interimText ? " " : "") +
+            text;
+
+        }
 
       }
 
-      else {
 
-        interim += text;
+      showTranscript();
+
+    };
+
+
+  recognition.onerror =
+    function(event) {
+
+
+      if (event.error === "aborted")
+        return;
+
+
+      resultEl.textContent =
+        "MIC ERROR: " +
+        event.error;
+
+    };
+
+
+  recognition.onend =
+    function() {
+
+
+      /*
+       Chrome sometimes ends recognition.
+
+       If RED button is still active,
+       restart it automatically.
+      */
+
+      if (listening) {
+
+
+        setTimeout(
+          function() {
+
+
+            if (listening) {
+
+
+              try {
+
+                recognition.start();
+
+              }
+
+              catch(e) {}
+
+            }
+
+          },
+
+          300
+        );
 
       }
-
-    }
-
-
-    heardEl.textContent =
-      (finalText + interim).trim();
-
-  };
-
-
-  recognition.onerror = function(event) {
-
-    resultEl.textContent =
-      "MIC ERROR: " + event.error;
-
-  };
-
-
-  recognition.onend = function() {
-
-    if (listening) {
-
-      listening = false;
-
-      updateButton();
-
-      saveSpeech();
-
-    }
 
   };
 
 
   return true;
+
 }
 
 
-/****************************************
+/************************************************
+ SHOW TRANSCRIPT
+************************************************/
+
+function showTranscript() {
+
+
+  let display =
+    finalText;
+
+
+  if (interimText) {
+
+
+    display +=
+      (display ? " " : "") +
+      interimText;
+
+  }
+
+
+  heardEl.textContent =
+    display || "Listening...";
+
+}
+
+
+/************************************************
  BUTTON DISPLAY
-****************************************/
+************************************************/
 
 function updateButton() {
 
+
   if (listening) {
 
-    micBtn.classList.add("listening");
+
+    micBtn.classList.add(
+      "listening"
+    );
+
 
     statusEl.textContent =
-      "LISTENING - PRESS RED TO STOP";
+      "LISTENING — PRESS RED TO STOP";
+
+
+    languageEl.disabled =
+      true;
 
   }
 
   else {
 
-    micBtn.classList.remove("listening");
+
+    micBtn.classList.remove(
+      "listening"
+    );
+
 
     statusEl.textContent =
       "PRESS GREEN TO START";
+
+
+    languageEl.disabled =
+      false;
 
   }
 
 }
 
 
-/****************************************
+/************************************************
  MIC BUTTON
-****************************************/
+************************************************/
 
-micBtn.addEventListener("click", function() {
+micBtn.addEventListener(
+  "click",
+  function() {
 
 
-  /******** START ********/
+    /********************************************
+     START
+    ********************************************/
 
-  if (!listening) {
+    if (!listening) {
 
-    if (!recognition) {
 
-      if (!initSpeech()) return;
+      finalText = "";
+
+      interimText = "";
+
+
+      heardEl.textContent =
+        "Listening...";
+
+
+      resultEl.textContent =
+        "";
+
+
+      /*
+       Create a new recognizer so language
+       selection is applied.
+      */
+
+      recognition = null;
+
+
+      if (!initSpeech())
+        return;
+
+
+      try {
+
+
+        recognition.start();
+
+
+        listening = true;
+
+
+        updateButton();
+
+
+      }
+
+      catch(error) {
+
+
+        resultEl.textContent =
+          "Could not start microphone: " +
+          error.message;
+
+      }
+
+
+      return;
 
     }
 
 
-    finalText = "";
+    /********************************************
+     STOP
+    ********************************************/
 
-    heardEl.textContent =
-      "Listening...";
+    listening =
+      false;
 
-    resultEl.textContent =
-      "Listening...";
+
+    updateButton();
 
 
     try {
 
-      recognition.start();
 
-      listening = true;
+      recognition.stop();
 
-      updateButton();
 
     }
 
-    catch(error) {
-
-      resultEl.textContent =
-        "Could not start microphone: " +
-        error.message;
-
-    }
+    catch(e) {}
 
 
+    /*
+      Wait briefly for final speech result
+    */
+
+    setTimeout(
+      saveDictation,
+      500
+    );
+
+  }
+);
+
+
+/************************************************
+ SAVE TO GOOGLE DOC
+************************************************/
+
+function saveDictation() {
+
+
+  if (saving)
     return;
-  }
 
 
-  /******** STOP ********/
+  /*
+    Include any last interim words.
+  */
 
-  listening = false;
-
-  updateButton();
-
-
-  try {
-
-    recognition.stop();
-
-  }
-
-  catch(error) {}
+  let text =
+    finalText.trim();
 
 
-  setTimeout(
-    saveSpeech,
-    300
-  );
-
-});
-
-
-/****************************************
- SEND SPEECH TO APPS SCRIPT
-****************************************/
-
-let saving = false;
-
-
-function saveSpeech() {
-
-  if (saving) return;
-
-
-  const text =
-    heardEl.textContent.trim();
+  const pending =
+    interimText.trim();
 
 
   if (
-    !text ||
-    text === "Listening..." ||
-    text === "—"
+    pending &&
+    !text.endsWith(pending)
   ) {
+
+
+    text +=
+      (text ? " " : "") +
+      pending;
+
+  }
+
+
+  text =
+    text.trim();
+
+
+  if (!text) {
+
 
     resultEl.textContent =
       "Nothing heard";
 
+
     return;
+
   }
 
 
-  saving = true;
-
-  resultEl.textContent =
-    "Saving to Sheet...";
+  heardEl.textContent =
+    text;
 
 
-  const formData =
+  saving =
+    true;
+
+
+  statusEl.textContent =
+    "SAVING TO GOOGLE DOC...";
+
+
+  const data =
     new URLSearchParams();
 
-  formData.append(
+
+  data.append(
     "text",
     text
   );
@@ -345,50 +644,82 @@ function saveSpeech() {
   fetch(
     BACKEND_URL,
     {
+
       method: "POST",
-      body: formData
+
+      body: data
+
     }
   )
 
-  .then(response =>
-    response.json()
+
+  .then(
+    response =>
+      response.json()
   )
 
-  .then(data => {
 
-    if (data.success) {
+  .then(
+    data => {
 
-      resultEl.textContent =
-        "SAVED TO " +
-        data.cell;
+
+      saving =
+        false;
+
+
+      if (data.success) {
+
+
+        statusEl.textContent =
+          "SAVED";
+
+
+        resultEl.textContent =
+          "Saved to: " +
+          data.documentName;
+
+
+      }
+
+      else {
+
+
+        statusEl.textContent =
+          "SAVE ERROR";
+
+
+        resultEl.textContent =
+          data.error;
+
+      }
 
     }
+  )
 
-    else {
+
+  .catch(
+    error => {
+
+
+      saving =
+        false;
+
+
+      statusEl.textContent =
+        "CONNECTION ERROR";
+
 
       resultEl.textContent =
-        "SAVE ERROR: " +
-        data.error;
+        error.message;
 
     }
-
-    saving = false;
-
-  })
-
-  .catch(error => {
-
-    resultEl.textContent =
-      "CONNECTION ERROR: " +
-      error.message;
-
-    saving = false;
-
-  });
+  );
 
 }
 
 </script>
 
+
 </body>
+
 </html>
