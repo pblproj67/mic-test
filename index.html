@@ -1,3 +1,2955 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1"
+>
+
+<title>Voice Dictation</title>
+
+<style>
+
+/* =========================================================
+   REF-01 — GLOBAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+button,
+label,
+select,
+option,
+input,
+h1,
+div,
+span {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
+/* =========================================================
+   REF-02 — PAGE
+========================================================= */
+
+body {
+
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+
+  max-width: 800px;
+
+  margin: 0 auto;
+
+  padding: 14px;
+
+  background: #000;
+
+  color: #fff;
+
+  text-align: center;
+}
+
+h1 {
+
+  margin: 10px 0 18px;
+
+  font-size: 28px;
+}
+
+
+/* =========================================================
+   REF-03 — STANDARD CONTROLS
+========================================================= */
+
+.control {
+  margin: 12px 0;
+}
+
+label {
+
+  display: block;
+
+  margin-bottom: 6px;
+
+  font-size: 16px;
+
+  font-weight: bold;
+}
+
+select,
+input {
+
+  width: 100%;
+
+  padding: 12px;
+
+  font-size: 17px;
+
+  color: #fff;
+
+  background: #181818;
+
+  border: 1px solid #444;
+
+  border-radius: 12px;
+}
+
+
+/* =========================================================
+   REF-04 — VOICE SELECTOR
+========================================================= */
+
+.voiceRow {
+  display: flex;
+  gap: 8px;
+}
+
+#voiceSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+#testVoiceBtn {
+
+  width: 82px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #333;
+
+  color: #fff;
+
+  font-size: 15px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* =========================================================
+   REF-05 — GOOGLE DRIVE
+========================================================= */
+
+#driveOptions {
+
+  padding: 14px;
+
+  background: #111;
+
+  border: 1px solid #333;
+
+  border-radius: 14px;
+}
+
+
+/* =========================================================
+   REF-06 — MAIN BUTTONS
+========================================================= */
+
+.mainButton {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 14px;
+
+  width: 100%;
+
+  height: 66px;
+
+  margin: 15px 0;
+
+  border: none;
+
+  border-radius: 16px;
+
+  color: #fff;
+
+  font-size: 23px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+#micBtn,
+#readBtn {
+  background: #0866ff;
+}
+
+#micBtn.listening,
+#readBtn.reading {
+  background: #d71920;
+}
+
+.buttonIcon {
+  font-size: 28px;
+}
+
+
+/* =========================================================
+   REF-07 — STATUS
+========================================================= */
+
+#status {
+
+  min-height: 25px;
+
+  margin: 10px 0 14px;
+
+  font-size: 19px;
+
+  font-weight: bold;
+}
+
+
+/* =========================================================
+   REF-08 — TEXTBOX
+========================================================= */
+
+#heard {
+
+  width: 100%;
+
+  height: 320px;
+
+  min-height: 260px;
+
+  padding: 16px;
+
+  color: #fff;
+
+  background: #101010;
+
+  border: 2px solid #333;
+
+  border-radius: 14px;
+
+  font-size: 22px;
+
+  line-height: 1.5;
+
+  overflow-y: scroll;
+
+  resize: none;
+
+  -webkit-user-select: text;
+
+  user-select: text;
+
+  -webkit-touch-callout: default;
+}
+
+#heard.listeningLock {
+
+  -webkit-user-select: none;
+
+  user-select: none;
+
+  -webkit-touch-callout: none;
+
+  caret-color: transparent;
+
+  cursor: pointer;
+}
+
+#heard.liveView {
+  border-color: #16803a;
+}
+
+#heard.frozenView {
+  border-color: #f59e0b;
+}
+
+
+/* =========================================================
+   REF-09 — CLEAR / SAVE
+========================================================= */
+
+.smallButtons {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin: 14px 0;
+}
+
+.smallButton {
+
+  flex: 1;
+
+  min-height: 52px;
+
+  border: 1px solid #444;
+
+  border-radius: 13px;
+
+  color: #fff;
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+#clearBtn {
+  background: #333;
+}
+
+#saveBtn {
+
+  background: #16803a;
+
+  border-color: #16803a;
+}
+
+
+/* =========================================================
+   REF-10 — RESULT
+========================================================= */
+
+#result {
+
+  min-height: 24px;
+
+  margin: 15px 0 30px;
+
+  font-size: 17px;
+
+  font-weight: bold;
+}
+
+.small {
+
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  color: #aaa;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>Voice Dictation</h1>
+
+
+<!-- =====================================================
+     REF-11 — LANGUAGE
+===================================================== -->
+
+<div class="control">
+
+<label>Language</label>
+
+<select id="language">
+
+  <option value="gu-IN">
+    🇮🇳 ગુજરાતી / Gujarati
+  </option>
+
+  <option value="hi-IN">
+    🇮🇳 Hindi / Hinglish
+  </option>
+
+  <option value="en-IN" selected>
+    🇮🇳 English (India)
+  </option>
+
+  <option value="en-US">
+    🇺🇸 English (US)
+  </option>
+
+</select>
+
+</div>
+
+
+<!-- =====================================================
+     REF-12 — READ VOICE
+===================================================== -->
+
+<div class="control">
+
+<label>Read Voice</label>
+
+<div class="voiceRow">
+
+<select id="voiceSelect">
+  <option value="">
+    Loading voices...
+  </option>
+</select>
+
+<button
+  id="testVoiceBtn"
+  type="button"
+>
+TEST
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     REF-13 — SAVE DESTINATION
+===================================================== -->
+
+<div class="control">
+
+<label>Save Destination</label>
+
+<select id="destination">
+
+  <option value="drive">
+    Google Drive
+  </option>
+
+  <option value="local">
+    Local Device
+  </option>
+
+</select>
+
+</div>
+
+
+<!-- =====================================================
+     REF-14 — FILE NAME
+===================================================== -->
+
+<div class="control">
+
+<label>File Name</label>
+
+<input
+  id="fileName"
+  value="Voice Dictation Transcripts"
+>
+
+</div>
+
+
+<!-- =====================================================
+     REF-15 — GOOGLE DRIVE
+===================================================== -->
+
+<div id="driveOptions">
+
+<label>Google Drive Format</label>
+
+<select id="driveFormat">
+
+  <option value="gdoc">
+    Google Doc
+  </option>
+
+  <option value="txt">
+    TXT File
+  </option>
+
+</select>
+
+<br><br>
+
+<label>Google Drive Folder URL</label>
+
+<input
+  id="folder"
+  placeholder="Leave blank for My Drive"
+>
+
+<div class="small">
+Paste Google Drive folder URL or folder ID.
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     REF-16 — LISTEN BUTTON
+===================================================== -->
+
+<button
+  id="micBtn"
+  class="mainButton"
+  type="button"
+>
+
+<span
+  id="micIcon"
+  class="buttonIcon"
+>
+🎙
+</span>
+
+<span id="micText">
+LISTEN
+</span>
+
+</button>
+
+
+<div id="status">
+PRESS BLUE TO LISTEN
+</div>
+
+
+<!-- =====================================================
+     REF-M01 — LOCAL MEDIA TRANSCRIPTION
+===================================================== -->
+
+<button
+  id="mediaBtn"
+  class="mainButton"
+  type="button"
+>
+  <span class="buttonIcon">📁</span>
+  <span id="mediaText">IMPORT MEDIA</span>
+</button>
+
+<input
+  id="mediaFile"
+  type="file"
+  accept="audio/*,video/*"
+  hidden
+>
+
+<div id="mediaStatus" class="small"></div>
+
+<!-- =====================================================
+     REF-17 — TEXTBOX
+===================================================== -->
+
+<textarea
+  id="heard"
+  inputmode="none"
+  placeholder="Your transcription will appear here..."
+></textarea>
+
+
+<!-- =====================================================
+     REF-18 — READ BUTTON
+===================================================== -->
+
+<button
+  id="readBtn"
+  class="mainButton"
+  type="button"
+>
+
+<span
+  id="readIcon"
+  class="buttonIcon"
+>
+▶
+</span>
+
+<span id="readText">
+READ
+</span>
+
+</button>
+
+
+<!-- =====================================================
+     REF-19 — CLEAR / SAVE
+===================================================== -->
+
+<div class="smallButtons">
+
+<button
+  id="clearBtn"
+  class="smallButton"
+  type="button"
+>
+CLEAR
+</button>
+
+<button
+  id="saveBtn"
+  class="smallButton"
+  type="button"
+>
+💾 SAVE
+</button>
+
+</div>
+
+
+<div id="result">
+—
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   REF-20 — BACKEND
+========================================================= */
+
+const BACKEND_URL =
+"https://script.google.com/macros/s/AKfycbwxxrUK9g3fkAkXGiUg4xvvKke4NEUhMjRSwK-EAGzGPTmu4_IVfK7h6nnkuu1qvr_DmA/exec";
+
+
+/* =========================================================
+   REF-21 — ELEMENTS
+========================================================= */
+
+const micBtn =
+  document.getElementById("micBtn");
+
+const micIcon =
+  document.getElementById("micIcon");
+
+const micText =
+  document.getElementById("micText");
+
+
+const readBtn =
+  document.getElementById("readBtn");
+
+const readIcon =
+  document.getElementById("readIcon");
+
+const readText =
+  document.getElementById("readText");
+
+
+const voiceSelectEl =
+  document.getElementById("voiceSelect");
+
+const testVoiceBtn =
+  document.getElementById("testVoiceBtn");
+
+
+const statusEl =
+  document.getElementById("status");
+
+const heardEl =
+  document.getElementById("heard");
+
+const resultEl =
+  document.getElementById("result");
+
+
+const languageEl =
+  document.getElementById("language");
+
+
+const destinationEl =
+  document.getElementById("destination");
+
+const driveOptionsEl =
+  document.getElementById("driveOptions");
+
+const driveFormatEl =
+  document.getElementById("driveFormat");
+
+const fileNameEl =
+  document.getElementById("fileName");
+
+const folderEl =
+  document.getElementById("folder");
+
+
+const clearBtn =
+  document.getElementById("clearBtn");
+
+const saveBtn =
+  document.getElementById("saveBtn");
+
+
+/* =========================================================
+   REF-22 — STATE
+========================================================= */
+
+let recognition = null;
+
+let listening = false;
+
+let recognitionRunning = false;
+
+let manualStop = false;
+
+let liveView = true;
+
+let saving = false;
+
+let reading = false;
+
+
+/*
+  Completed text from previous recognition sessions.
+*/
+
+let committedText = "";
+
+
+/*
+  Current Chrome recognition session.
+
+  These are REPLACED on each recognition update.
+*/
+
+let sessionFinalText = "";
+
+let sessionInterimText = "";
+
+
+let availableVoices = [];
+
+let displayFramePending = false;
+
+
+/* =========================================================
+   REF-23 — DESTINATION
+========================================================= */
+
+destinationEl.addEventListener(
+  "change",
+  updateDestination
+);
+
+
+function updateDestination() {
+
+  driveOptionsEl.style.display =
+    destinationEl.value === "drive"
+      ? "block"
+      : "none";
+
+}
+
+
+updateDestination();
+
+
+/* =========================================================
+   REF-24 — NORMALIZE
+========================================================= */
+
+function normalizeText(text) {
+
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+}
+
+
+/* =========================================================
+   REF-25 — BEST RECOGNITION ALTERNATIVE
+
+   Chrome can return several possible interpretations.
+
+   Choose the alternative with the highest confidence.
+========================================================= */
+
+function getBestAlternative(result) {
+
+
+  if (!result || result.length === 0) {
+
+    return "";
+
+  }
+
+
+  let best =
+    result[0];
+
+
+  for (
+    let i = 1;
+    i < result.length;
+    i++
+  ) {
+
+
+    const candidate =
+      result[i];
+
+
+    if (
+      candidate &&
+      Number(candidate.confidence || 0) >
+      Number(best.confidence || 0)
+    ) {
+
+
+      best =
+        candidate;
+
+    }
+
+  }
+
+
+  return normalizeText(
+    best.transcript
+  );
+
+}
+
+
+/* =========================================================
+   REF-26 — COLLAPSE PROGRESSIVE RESULTS
+
+   Example:
+
+   diplomacy
+   diplomacy often
+   diplomacy often gets
+   diplomacy often gets a bad rep
+
+   Keep only:
+   diplomacy often gets a bad rep
+========================================================= */
+
+function collapseProgressiveParts(parts) {
+
+
+  const cleaned = [];
+
+
+  for (
+    let i = 0;
+    i < parts.length;
+    i++
+  ) {
+
+
+    const current =
+      normalizeText(
+        parts[i]
+      );
+
+
+    if (!current) {
+      continue;
+    }
+
+
+    if (
+      cleaned.length === 0
+    ) {
+
+
+      cleaned.push(
+        current
+      );
+
+
+      continue;
+
+    }
+
+
+    const lastIndex =
+      cleaned.length - 1;
+
+
+    const previous =
+      cleaned[lastIndex];
+
+
+    const a =
+      previous.toLowerCase();
+
+
+    const b =
+      current.toLowerCase();
+
+
+    /*
+      SAME
+    */
+
+    if (
+      a === b
+    ) {
+
+      continue;
+
+    }
+
+
+    /*
+      CURRENT IS LONGER VERSION
+    */
+
+    if (
+      b.startsWith(a)
+    ) {
+
+
+      cleaned[lastIndex] =
+        current;
+
+
+      continue;
+
+    }
+
+
+    /*
+      PREVIOUS IS LONGER VERSION
+    */
+
+    if (
+      a.startsWith(b)
+    ) {
+
+      continue;
+
+    }
+
+
+    /*
+      Separate phrase.
+    */
+
+    cleaned.push(
+      current
+    );
+
+  }
+
+
+  return normalizeText(
+    cleaned.join(" ")
+  );
+
+}
+
+
+/* =========================================================
+   REF-27 — REBUILD CURRENT SESSION
+
+   We never append Chrome events.
+
+   Every event replaces the current
+   session snapshot.
+========================================================= */
+
+function rebuildCurrentSession(results) {
+
+
+  const finalParts = [];
+
+  const interimParts = [];
+
+
+  for (
+    let i = 0;
+    i < results.length;
+    i++
+  ) {
+
+
+    const result =
+      results[i];
+
+
+    if (!result) {
+      continue;
+    }
+
+
+    const text =
+      getBestAlternative(
+        result
+      );
+
+
+    if (!text) {
+      continue;
+    }
+
+
+    if (
+      result.isFinal
+    ) {
+
+
+      finalParts.push(
+        text
+      );
+
+    }
+
+    else {
+
+
+      interimParts.push(
+        text
+      );
+
+    }
+
+  }
+
+
+  /*
+    REPLACE current session state.
+  */
+
+  sessionFinalText =
+    collapseProgressiveParts(
+      finalParts
+    );
+
+
+  sessionInterimText =
+    collapseProgressiveParts(
+      interimParts
+    );
+
+}
+
+
+/* =========================================================
+   REF-28 — COMMIT CURRENT SESSION
+
+   Only FINAL text becomes permanent.
+========================================================= */
+
+function commitCurrentSession() {
+
+
+  const finalPart =
+    normalizeText(
+      sessionFinalText
+    );
+
+
+  if (finalPart) {
+
+
+    committedText +=
+      (committedText ? " " : "") +
+      finalPart;
+
+
+    committedText =
+      normalizeText(
+        committedText
+      );
+
+  }
+
+
+  sessionFinalText =
+    "";
+
+
+  sessionInterimText =
+    "";
+
+}
+
+
+/* =========================================================
+   REF-29 — CURRENT TRANSCRIPT
+========================================================= */
+
+function getCurrentTranscript() {
+
+
+  let text =
+    normalizeText(
+      committedText
+    );
+
+
+  const confirmed =
+    normalizeText(
+      sessionFinalText
+    );
+
+
+  const temporary =
+    normalizeText(
+      sessionInterimText
+    );
+
+
+  if (confirmed) {
+
+
+    text +=
+      (text ? " " : "") +
+      confirmed;
+
+  }
+
+
+  if (temporary) {
+
+
+    text +=
+      (text ? " " : "") +
+      temporary;
+
+  }
+
+
+  return normalizeText(
+    text
+  );
+
+}
+
+
+/* =========================================================
+   REF-30 — DISPLAY REFRESH
+
+   requestAnimationFrame keeps DOM updates
+   from burdening recognition.
+========================================================= */
+
+function refreshTranscriptDisplay(
+  force = false
+) {
+
+
+  if (
+    listening &&
+    !liveView &&
+    !force
+  ) {
+
+    return;
+
+  }
+
+
+  if (force) {
+
+
+    displayFramePending =
+      false;
+
+
+    heardEl.value =
+      getCurrentTranscript();
+
+
+    if (
+      listening &&
+      liveView
+    ) {
+
+
+      heardEl.scrollTop =
+        heardEl.scrollHeight;
+
+    }
+
+
+    return;
+
+  }
+
+
+  if (
+    displayFramePending
+  ) {
+
+    return;
+
+  }
+
+
+  displayFramePending =
+    true;
+
+
+  requestAnimationFrame(
+    function() {
+
+
+      displayFramePending =
+        false;
+
+
+      if (
+        listening &&
+        !liveView
+      ) {
+
+        return;
+
+      }
+
+
+      heardEl.value =
+        getCurrentTranscript();
+
+
+      if (
+        listening &&
+        liveView
+      ) {
+
+
+        heardEl.scrollTop =
+          heardEl.scrollHeight;
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   REF-31 — TEXTBOX MODE
+========================================================= */
+
+function updateTextboxMode() {
+
+
+  if (!listening) {
+
+
+    heardEl.readOnly =
+      false;
+
+
+    heardEl.setAttribute(
+      "inputmode",
+      "text"
+    );
+
+
+    heardEl.classList.remove(
+      "listeningLock",
+      "liveView",
+      "frozenView"
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+    While listening:
+    absolutely no keyboard / selection.
+  */
+
+  heardEl.readOnly =
+    true;
+
+
+  heardEl.setAttribute(
+    "inputmode",
+    "none"
+  );
+
+
+  heardEl.blur();
+
+
+  heardEl.classList.add(
+    "listeningLock"
+  );
+
+
+  if (liveView) {
+
+
+    heardEl.classList.add(
+      "liveView"
+    );
+
+
+    heardEl.classList.remove(
+      "frozenView"
+    );
+
+  }
+
+  else {
+
+
+    heardEl.classList.remove(
+      "liveView"
+    );
+
+
+    heardEl.classList.add(
+      "frozenView"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   REF-32 — TAP TEXTBOX: LIVE / FREEZE
+
+   One pointer event only.
+
+   No duplicate touch/click handlers.
+========================================================= */
+
+heardEl.addEventListener(
+  "pointerdown",
+
+  function(event) {
+
+
+    if (!listening) {
+      return;
+    }
+
+
+    event.preventDefault();
+
+
+    heardEl.blur();
+
+
+    liveView =
+      !liveView;
+
+
+    updateTextboxMode();
+
+
+    if (liveView) {
+
+
+      refreshTranscriptDisplay(true);
+
+
+      heardEl.scrollTop =
+        heardEl.scrollHeight;
+
+
+      statusEl.textContent =
+        "LISTENING — LIVE VIEW";
+
+    }
+
+    else {
+
+
+      statusEl.textContent =
+        "LISTENING — VIEW FROZEN — TAP TEXT TO RESUME";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   REF-33 — CREATE RECOGNIZER
+========================================================= */
+
+function createRecognizer() {
+
+
+  const SR =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+  if (!SR) {
+
+
+    alert(
+      "Speech recognition is not supported. Use Chrome or Edge."
+    );
+
+
+    return false;
+
+  }
+
+
+  recognition =
+    new SR();
+
+
+  /*
+    IMPORTANT FOR CURRENT TEST:
+
+    English India is usually a better match
+    for an Indian-English speaker than en-US.
+  */
+
+  recognition.lang =
+    languageEl.value;
+
+
+  recognition.continuous =
+    true;
+
+
+  recognition.interimResults =
+    true;
+
+
+  /*
+    Ask for more than one interpretation.
+
+    We still use only ONE selected best result.
+  */
+
+  recognition.maxAlternatives =
+    3;
+
+
+/* =========================================================
+   REF-34 — RECOGNITION START
+========================================================= */
+
+  recognition.onstart =
+    function() {
+
+
+      recognitionRunning =
+        true;
+
+  };
+
+
+/* =========================================================
+   REF-35 — RECOGNITION RESULT
+========================================================= */
+
+  recognition.onresult =
+    function(event) {
+
+
+      /*
+        Extremely lightweight:
+
+        1. rebuild current recognition snapshot
+        2. schedule display update
+
+        Nothing else.
+      */
+
+      rebuildCurrentSession(
+        event.results
+      );
+
+
+      refreshTranscriptDisplay();
+
+  };
+
+
+/* =========================================================
+   REF-36 — ERROR
+========================================================= */
+
+  recognition.onerror =
+    function(event) {
+
+
+      if (
+        event.error === "aborted" &&
+        manualStop
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        event.error === "no-speech"
+      ) {
+
+        return;
+
+      }
+
+
+      resultEl.textContent =
+        "MIC ERROR: " +
+        event.error;
+
+
+      if (
+        event.error === "not-allowed" ||
+        event.error === "service-not-allowed" ||
+        event.error === "audio-capture"
+      ) {
+
+
+        manualStop =
+          true;
+
+
+        listening =
+          false;
+
+
+        recognitionRunning =
+          false;
+
+
+        updateMicButton();
+
+
+        updateTextboxMode();
+
+      }
+
+  };
+
+
+/* =========================================================
+   REF-37 — RECOGNITION END
+========================================================= */
+
+  recognition.onend =
+    function() {
+
+
+      recognitionRunning =
+        false;
+
+
+      /*
+        Store only Chrome-confirmed FINAL text.
+      */
+
+      commitCurrentSession();
+
+
+      if (
+        manualStop ||
+        !listening
+      ) {
+
+
+        refreshTranscriptDisplay(true);
+
+
+        return;
+
+      }
+
+
+      /*
+        Restart quickly to minimize lost audio.
+      */
+
+      setTimeout(
+
+        function() {
+
+
+          if (
+            !listening ||
+            manualStop ||
+            recognitionRunning
+          ) {
+
+            return;
+
+          }
+
+
+          startRecognitionSession();
+
+        },
+
+        30
+
+      );
+
+  };
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   REF-38 — START RECOGNITION SESSION
+========================================================= */
+
+function startRecognitionSession() {
+
+
+  if (
+    !listening ||
+    recognitionRunning
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    !createRecognizer()
+  ) {
+
+
+    listening =
+      false;
+
+
+    updateMicButton();
+
+
+    updateTextboxMode();
+
+
+    return;
+
+  }
+
+
+  try {
+
+
+    recognition.start();
+
+  }
+
+
+  catch(error) {
+
+
+    console.log(
+      "Recognition start:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   REF-39 — MIC BUTTON UI
+========================================================= */
+
+function updateMicButton() {
+
+
+  if (listening) {
+
+
+    micBtn.classList.add(
+      "listening"
+    );
+
+
+    micIcon.textContent =
+      "■";
+
+
+    micText.textContent =
+      "STOP LISTENING";
+
+
+    if (liveView) {
+
+
+      statusEl.textContent =
+        "LISTENING — LIVE VIEW";
+
+    }
+
+    else {
+
+
+      statusEl.textContent =
+        "LISTENING — VIEW FROZEN";
+
+    }
+
+
+    languageEl.disabled =
+      true;
+
+  }
+
+  else {
+
+
+    micBtn.classList.remove(
+      "listening"
+    );
+
+
+    micIcon.textContent =
+      "🎙";
+
+
+    micText.textContent =
+      "LISTEN";
+
+
+    languageEl.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================================
+   REF-40 — MIC START / STOP
+========================================================= */
+
+micBtn.addEventListener(
+  "click",
+
+  function() {
+
+
+    /* -----------------------------------------------------
+       START
+    ----------------------------------------------------- */
+
+    if (!listening) {
+
+
+      stopReading();
+
+
+      committedText =
+        "";
+
+
+      sessionFinalText =
+        "";
+
+
+      sessionInterimText =
+        "";
+
+
+      heardEl.value =
+        "";
+
+
+      heardEl.scrollTop =
+        0;
+
+
+      resultEl.textContent =
+        "";
+
+
+      liveView =
+        true;
+
+
+      manualStop =
+        false;
+
+
+      listening =
+        true;
+
+
+      updateMicButton();
+
+
+      updateTextboxMode();
+
+
+      startRecognitionSession();
+
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       STOP
+    ----------------------------------------------------- */
+
+
+    manualStop =
+      true;
+
+
+    listening =
+      false;
+
+
+    /*
+      Immediately restore BLUE UI.
+    */
+
+    updateMicButton();
+
+
+    updateTextboxMode();
+
+
+    /*
+      Let recognition.stop() ask Chrome
+      to finalize anything it still can.
+    */
+
+    try {
+
+
+      if (recognition) {
+
+
+        recognition.stop();
+
+      }
+
+    }
+
+
+    catch(error) {
+
+
+      commitCurrentSession();
+
+
+      refreshTranscriptDisplay(true);
+
+    }
+
+
+    statusEl.textContent =
+      "DICTATION READY";
+
+  }
+);
+
+
+/* =========================================================
+   REF-41 — MANUAL TEXT EDITING
+========================================================= */
+
+heardEl.addEventListener(
+  "input",
+
+  function() {
+
+
+    if (!listening) {
+
+
+      committedText =
+        heardEl.value;
+
+
+      sessionFinalText =
+        "";
+
+
+      sessionInterimText =
+        "";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   REF-42 — CLEAR
+========================================================= */
+
+clearBtn.addEventListener(
+  "click",
+
+  function() {
+
+
+    if (listening) {
+
+
+      resultEl.textContent =
+        "Stop listening before clearing.";
+
+
+      return;
+
+    }
+
+
+    stopReading();
+
+
+    committedText =
+      "";
+
+
+    sessionFinalText =
+      "";
+
+
+    sessionInterimText =
+      "";
+
+
+    heardEl.value =
+      "";
+
+
+    heardEl.scrollTop =
+      0;
+
+
+    resultEl.textContent =
+      "Text cleared";
+
+
+    statusEl.textContent =
+      "PRESS BLUE TO LISTEN";
+
+  }
+);
+
+
+/* =========================================================
+   REF-43 — LOAD DEVICE VOICES
+========================================================= */
+
+function loadVoices() {
+
+
+  if (
+    !(
+      "speechSynthesis"
+      in window
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  availableVoices =
+    window.speechSynthesis
+      .getVoices();
+
+
+  const previousSelection =
+    voiceSelectEl.value;
+
+
+  voiceSelectEl.innerHTML =
+    "";
+
+
+  const selectedLanguage =
+    languageEl.value.toLowerCase();
+
+
+  const baseLanguage =
+    selectedLanguage.split("-")[0];
+
+
+  let matchingVoices =
+    availableVoices.filter(
+      function(voice) {
+
+
+        const voiceLanguage =
+          String(
+            voice.lang || ""
+          ).toLowerCase();
+
+
+        return (
+          voiceLanguage === selectedLanguage ||
+          voiceLanguage.startsWith(
+            baseLanguage + "-"
+          )
+        );
+
+      }
+    );
+
+
+  if (
+    matchingVoices.length === 0
+  ) {
+
+
+    matchingVoices =
+      availableVoices;
+
+  }
+
+
+  if (
+    matchingVoices.length === 0
+  ) {
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      "";
+
+
+    option.textContent =
+      "Default device voice";
+
+
+    voiceSelectEl.appendChild(
+      option
+    );
+
+
+    return;
+
+  }
+
+
+  matchingVoices.forEach(
+    function(voice) {
+
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        availableVoices.indexOf(
+          voice
+        );
+
+
+      let label =
+        voice.name +
+        " — " +
+        voice.lang;
+
+
+      if (
+        voice.default
+      ) {
+
+
+        label +=
+          " ★";
+
+      }
+
+
+      option.textContent =
+        label;
+
+
+      voiceSelectEl.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  if (
+    previousSelection &&
+    [...voiceSelectEl.options]
+      .some(
+        option =>
+          option.value ===
+          previousSelection
+      )
+  ) {
+
+
+    voiceSelectEl.value =
+      previousSelection;
+
+  }
+
+}
+
+
+/* =========================================================
+   REF-44 — VOICE INITIALIZATION
+========================================================= */
+
+loadVoices();
+
+
+if (
+  "speechSynthesis"
+  in window
+) {
+
+
+  window.speechSynthesis.onvoiceschanged =
+    loadVoices;
+
+}
+
+
+languageEl.addEventListener(
+  "change",
+  loadVoices
+);
+
+
+/* =========================================================
+   REF-45 — SELECTED VOICE
+========================================================= */
+
+function getSelectedVoice() {
+
+
+  const index =
+    Number(
+      voiceSelectEl.value
+    );
+
+
+  if (
+    Number.isNaN(index) ||
+    !availableVoices[index]
+  ) {
+
+
+    return null;
+
+  }
+
+
+  return availableVoices[index];
+
+}
+
+
+/* =========================================================
+   REF-46 — TEST VOICE
+========================================================= */
+
+testVoiceBtn.addEventListener(
+  "click",
+
+  function() {
+
+
+    if (listening) {
+
+
+      resultEl.textContent =
+        "Stop listening before testing voice.";
+
+
+      return;
+
+    }
+
+
+    if (
+      !(
+        "speechSynthesis"
+        in window
+      )
+    ) {
+
+
+      resultEl.textContent =
+        "Text-to-speech is not supported.";
+
+
+      return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const language =
+      languageEl.value;
+
+
+    let sample =
+      "Hello. This is a sample of this voice.";
+
+
+    if (
+      language === "gu-IN"
+    ) {
+
+
+      sample =
+        "નમસ્તે. આ અવાજનો નમૂનો છે.";
+
+    }
+
+
+    else if (
+      language === "hi-IN"
+    ) {
+
+
+      sample =
+        "नमस्ते। यह आवाज़ का एक नमूना है।";
+
+    }
+
+
+    else if (
+      language === "en-IN"
+    ) {
+
+
+      sample =
+        "Hello. This is a sample of the selected voice.";
+
+    }
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        sample
+      );
+
+
+    utterance.lang =
+      language;
+
+
+    const selectedVoice =
+      getSelectedVoice();
+
+
+    if (selectedVoice) {
+
+
+      utterance.voice =
+        selectedVoice;
+
+    }
+
+
+    utterance.rate =
+      0.95;
+
+
+    utterance.pitch =
+      1;
+
+
+    utterance.volume =
+      1;
+
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+
+  }
+);
+
+
+/* =========================================================
+   REF-47 — READ BUTTON UI
+========================================================= */
+
+function updateReadButton() {
+
+
+  if (reading) {
+
+
+    readBtn.classList.add(
+      "reading"
+    );
+
+
+    readIcon.textContent =
+      "■";
+
+
+    readText.textContent =
+      "STOP READING";
+
+  }
+
+  else {
+
+
+    readBtn.classList.remove(
+      "reading"
+    );
+
+
+    readIcon.textContent =
+      "▶";
+
+
+    readText.textContent =
+      "READ";
+
+  }
+
+}
+
+
+/* =========================================================
+   REF-48 — STOP READING
+========================================================= */
+
+function stopReading() {
+
+
+  if (
+    "speechSynthesis"
+    in window
+  ) {
+
+
+    window.speechSynthesis.cancel();
+
+  }
+
+
+  reading =
+    false;
+
+
+  updateReadButton();
+
+}
+
+
+/* =========================================================
+   REF-49 — READ / STOP READ
+   Samsung Chrome safer version
+========================================================= */
+
+readBtn.addEventListener(
+  "click",
+
+  function() {
+
+    /* -------------------------------
+       STOP
+    -------------------------------- */
+
+    if (reading) {
+
+      stopReading();
+
+      statusEl.textContent =
+        "DICTATION READY";
+
+      resultEl.textContent =
+        "";
+
+      return;
+    }
+
+
+    /* -------------------------------
+       DON'T READ WHILE LISTENING
+    -------------------------------- */
+
+    if (listening) {
+
+      resultEl.textContent =
+        "Stop listening before reading.";
+
+      return;
+    }
+
+
+    const text =
+      heardEl.value.trim();
+
+
+    if (!text) {
+
+      resultEl.textContent =
+        "Nothing to read.";
+
+      return;
+    }
+
+
+    if (!("speechSynthesis" in window)) {
+
+      resultEl.textContent =
+        "Text-to-speech is not supported.";
+
+      return;
+    }
+
+
+    /*
+      Cancel any old/stuck Samsung
+      speech-synthesis session.
+    */
+
+    window.speechSynthesis.cancel();
+
+
+    /*
+      IMPORTANT:
+
+      Change the button to STOP immediately,
+      before Android starts speaking.
+    */
+
+    reading = true;
+
+    updateReadButton();
+
+    statusEl.textContent =
+      "READING...";
+
+    resultEl.textContent =
+      "";
+
+
+    /*
+      Give Samsung speech engine a short
+      moment after cancel().
+    */
+
+    setTimeout(
+      function() {
+
+        if (!reading) {
+          return;
+        }
+
+
+        const utterance =
+          new SpeechSynthesisUtterance(
+            text
+          );
+
+
+        utterance.lang =
+          languageEl.value;
+
+
+        const selectedVoice =
+          getSelectedVoice();
+
+
+        if (selectedVoice) {
+
+          utterance.voice =
+            selectedVoice;
+        }
+
+
+        utterance.rate =
+          0.92;
+
+        utterance.pitch =
+          1.0;
+
+        utterance.volume =
+          1.0;
+
+
+        /* -----------------------------
+           SPEECH ACTUALLY STARTED
+        ----------------------------- */
+
+        utterance.onstart =
+          function() {
+
+            if (!reading) {
+              return;
+            }
+
+            statusEl.textContent =
+              "READING...";
+          };
+
+
+        /* -----------------------------
+           SPEECH FINISHED
+        ----------------------------- */
+
+        utterance.onend =
+          function() {
+
+            reading =
+              false;
+
+            updateReadButton();
+
+            statusEl.textContent =
+              "DICTATION READY";
+
+            resultEl.textContent =
+              "";
+          };
+
+
+        /* -----------------------------
+           SPEECH ERROR
+        ----------------------------- */
+
+        utterance.onerror =
+          function(event) {
+
+            /*
+              User pressing STOP can
+              generate canceled/interrupted.
+            */
+
+            if (
+              event.error === "canceled" ||
+              event.error === "interrupted"
+            ) {
+
+              reading =
+                false;
+
+              updateReadButton();
+
+              statusEl.textContent =
+                "DICTATION READY";
+
+              return;
+            }
+
+
+            reading =
+              false;
+
+            updateReadButton();
+
+            statusEl.textContent =
+              "READ FAILED";
+
+
+            resultEl.textContent =
+              "READ ERROR: " +
+              event.error;
+          };
+
+
+        try {
+
+          window.speechSynthesis.speak(
+            utterance
+          );
+
+        }
+
+        catch (error) {
+
+          reading =
+            false;
+
+          updateReadButton();
+
+          statusEl.textContent =
+            "READ FAILED";
+
+          resultEl.textContent =
+            "READ ERROR: " +
+            error.message;
+        }
+
+      },
+
+      150
+    );
+
+  }
+);
+
+/* =========================================================
+   REF-50 — SAVE BUTTON
+========================================================= */
+
+saveBtn.addEventListener(
+  "click",
+
+  function() {
+
+
+    if (listening) {
+
+
+      resultEl.textContent =
+        "Stop listening before saving.";
+
+
+      return;
+
+    }
+
+
+    stopReading();
+
+
+    saveDictation();
+
+  }
+);
+
+
+/* =========================================================
+   REF-51 — SAVE
+========================================================= */
+
+function saveDictation() {
+
+
+  if (saving) {
+    return;
+  }
+
+
+  const text =
+    heardEl.value.trim();
+
+
+  if (!text) {
+
+
+    resultEl.textContent =
+      "Nothing to save.";
+
+
+    return;
+
+  }
+
+
+  if (
+    destinationEl.value === "local"
+  ) {
+
+
+    saveLocal(
+      text
+    );
+
+
+    return;
+
+  }
+
+
+  saveGoogleDrive(
+    text
+  );
+
+}
+
+
+/* =========================================================
+   REF-52 — LOCAL TXT
+========================================================= */
+
+function saveLocal(text) {
+
+
+  let name =
+    fileNameEl.value.trim() ||
+    "Voice Dictation";
+
+
+  if (
+    !name
+      .toLowerCase()
+      .endsWith(".txt")
+  ) {
+
+
+    name +=
+      ".txt";
+
+  }
+
+
+  const timestamp =
+    new Date()
+      .toLocaleString();
+
+
+  const contents =
+    timestamp +
+    "\n\n" +
+    text +
+    "\n";
+
+
+  const blob =
+    new Blob(
+      [contents],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const a =
+    document.createElement(
+      "a"
+    );
+
+
+  a.href =
+    url;
+
+
+  a.download =
+    name;
+
+
+  document.body
+    .appendChild(a);
+
+
+  a.click();
+
+
+  a.remove();
+
+
+  setTimeout(
+    function() {
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    },
+
+    1000
+
+  );
+
+
+  statusEl.textContent =
+    "SAVED LOCALLY";
+
+
+  resultEl.textContent =
+    "Downloaded: " +
+    name;
+
+}
+
+
+/* =========================================================
+   REF-53 — GOOGLE DRIVE
+========================================================= */
+
+function saveGoogleDrive(text) {
+
+
+  saving =
+    true;
+
+
+  statusEl.textContent =
+    "SAVING TO GOOGLE DRIVE...";
+
+
+  const data =
+    new URLSearchParams();
+
+
+  data.append(
+    "text",
+    text
+  );
+
+
+  data.append(
+    "format",
+    driveFormatEl.value
+  );
+
+
+  data.append(
+    "fileName",
+    fileNameEl.value.trim()
+  );
+
+
+  data.append(
+    "folder",
+    folderEl.value.trim()
+  );
+
+
+  fetch(
+    BACKEND_URL,
+    {
+
+      method: "POST",
+
+      body: data
+
+    }
+  )
+
+
+  .then(
+    function(response) {
+
+
+      return response.json();
+
+    }
+  )
+
+
+  .then(
+    function(data) {
+
+
+      saving =
+        false;
+
+
+      if (
+        data.success
+      ) {
+
+
+        statusEl.textContent =
+          "SAVED";
+
+
+        resultEl.textContent =
+          "Saved to Google Drive: " +
+          data.fileName;
+
+      }
+
+      else {
+
+
+        statusEl.textContent =
+          "SAVE ERROR";
+
+
+        resultEl.textContent =
+          data.error ||
+          "Unknown save error";
+
+      }
+
+    }
+  )
+
+
+  .catch(
+    function(error) {
+
+
+      saving =
+        false;
+
+
+      statusEl.textContent =
+        "CONNECTION ERROR";
+
+
+      resultEl.textContent =
+        error.message;
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   REF-54 — INITIAL STATE
+========================================================= */
+
+updateMicButton();
+
+updateReadButton();
+
+updateTextboxMode();
+
+</script>
+
+</body>
+
+
 <script type="module">
 
 /* =========================================================
@@ -488,3 +3440,7 @@ mediaFile.addEventListener(
 );
 
 </script>
+
+
+
+</html>
